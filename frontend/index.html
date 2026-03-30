@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StreetSafe — Live Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 20px; background: #161b22;
+      border-bottom: 1px solid #30363d; flex-shrink: 0;
+    }
+    header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 1px; }
+    header h1 span { color: #58a6ff; }
+    .badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+    .badge-mock { background:#9e6a03; color:#fff; }
+    #state-badge { font-size: 0.78rem; padding: 3px 12px; border-radius: 20px; font-weight: 700; }
+    .main { display: flex; flex: 1; overflow: hidden; }
+    .left-panel {
+      width: 280px; background: #161b22;
+      border-right: 1px solid #30363d;
+      display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+    }
+    .panel { padding: 12px 14px; border-bottom: 1px solid #21262d; }
+    .panel h2 { font-size: 0.65rem; color: #8b949e; text-transform: uppercase;
+                letter-spacing: 1px; margin-bottom: 9px; }
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    .stat { background: #0d1117; border-radius: 6px; padding: 7px 9px; }
+    .stat .label { font-size: 0.6rem; color: #8b949e; text-transform: uppercase; }
+    .stat .value { font-size: 1rem; font-weight: 700; margin-top: 1px; }
+    .value.green  { color: #3fb950; }
+    .value.yellow { color: #d29922; }
+    .value.red    { color: #f85149; }
+    .value.cyan   { color: #58a6ff; }
+    .scenario-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .scenario-btns button {
+      flex: 1; min-width: 70px; padding: 7px 6px; border-radius: 6px;
+      border: 1px solid #30363d; background: #0d1117; color: #8b949e;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .scenario-btns button:hover { border-color: #58a6ff; color: #e6edf3; }
+    .scenario-btns button.active-clear     { background:#0f3d1a; border-color:#3fb950; color:#3fb950; }
+    .scenario-btns button.active-obstacle  { background:#3a2700; border-color:#d29922; color:#d29922; }
+    .scenario-btns button.active-emergency { background:#2d1b1e; border-color:#f85149; color:#f85149; }
+    .route-form { display: flex; flex-direction: column; gap: 6px; }
+    .route-form select, .route-form button {
+      width: 100%; padding: 6px 9px; border-radius: 6px;
+      border: 1px solid #30363d; background: #0d1117; color: #e6edf3; font-size: 0.82rem;
+    }
+    .route-form button { background: #238636; border-color: #2ea043; cursor: pointer; font-weight: 600; }
+    .route-form button:hover { background: #2ea043; }
+    #route-result { font-size: 0.75rem; color: #8b949e; margin-top: 7px; }
+    .hop { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+    .hop .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .flood-form { display: flex; flex-direction: column; gap: 5px; }
+    .flood-form input {
+      padding: 5px 9px; border-radius: 6px; border: 1px solid #30363d;
+      background: #0d1117; color: #e6edf3; font-size: 0.78rem;
+    }
+    .flood-form button {
+      padding: 6px; border-radius: 6px; border: 1px solid #9e6a03;
+      background: #3d2b0a; color: #d29922; cursor: pointer; font-weight: 600; font-size: 0.78rem;
+    }
+    #alert-list { display: flex; flex-direction: column; gap: 5px; }
+    .alert-item { padding: 6px 9px; border-radius: 6px; font-size: 0.75rem; border-left: 3px solid; }
+    .alert-item.critical { background:#2d1b1e; border-color:#f85149; color:#f85149; }
+    .alert-item.warning  { background:#271d0b; border-color:#d29922; color:#d29922; }
+    .alert-item.caution  { background:#0d2033; border-color:#58a6ff; color:#58a6ff; }
+    .alert-item .atime   { opacity:0.6; font-size:0.65rem; }
+    .centre { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+    #map-toolbar { flex-shrink: 0; }
+    #map { flex: 1; min-height: 0; }
+    #narrative-bar {
+      padding: 7px 18px; background: #161b22; border-top: 1px solid #30363d;
+      font-size: 0.82rem; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    #narrative-text { flex: 1; }
+    .right-panel {
+      width: 300px; background: #161b22;
+      border-left: 1px solid #30363d;
+      display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+    }
+    #radar-wrap { display: flex; justify-content: center; padding: 12px 0 4px; }
+    canvas#radar { border-radius: 50%; display: block; }
+    #compass-wrap { display: flex; justify-content: center; align-items: center;
+                    padding: 6px 0 10px; gap: 10px; }
+    canvas#compass { display: block; }
+    #heading-text { font-size: 1.6rem; font-weight: 700; color: #58a6ff; min-width: 52px; text-align: right; }
+    #obs-chart-wrap { padding: 6px 14px 10px; }
+    #obs-chart-wrap h2 { font-size: 0.65rem; color: #8b949e; text-transform: uppercase;
+                         letter-spacing: 1px; margin-bottom: 7px; }
+    #obs-bars { display: flex; gap: 3px; height: 60px; align-items: flex-end; }
+    .obs-bar { flex: 1; border-radius: 3px 3px 0 0; transition: height 0.2s, background 0.2s; min-height: 2px; }
+    #obs-labels { display: flex; gap: 3px; margin-top: 2px; font-size: 0.5rem; color: #8b949e; }
+    #obs-labels span { flex: 1; text-align: center; }
+    #terrain-chip { display: inline-block; padding: 2px 10px; border-radius: 20px;
+                    font-size: 0.72rem; font-weight: 700; margin: 0 14px 10px; }
+    .speed-row { display: flex; align-items: center; gap: 8px; }
+    .speed-row input[type=range] {
+      flex: 1; accent-color: #58a6ff;
+    }
+    .speed-val { font-size: 0.85rem; font-weight: 700; color: #58a6ff;
+                 min-width: 38px; text-align: right; }
+    #map-toolbar {
+      display: flex; gap: 6px; padding: 6px 10px;
+      background: #161b22; border-bottom: 1px solid #21262d; flex-shrink: 0;
+    }
+    .map-mode-btn {
+      padding: 5px 12px; border-radius: 6px; border: 1px solid #30363d;
+      background: #0d1117; color: #8b949e; font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .map-mode-btn:hover { border-color: #58a6ff; color: #e6edf3; }
+    .map-mode-btn.active { background: #0d2033; border-color: #58a6ff; color: #58a6ff; }
+    .map-mode-btn.danger { border-color: #f85149; color: #f85149; background: #2d1b1e; }
+    #map-mode-hint {
+      flex: 1; font-size: 0.72rem; color: #8b949e;
+      display: flex; align-items: center; padding-left: 6px;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Street<span>Safe</span></h1>
+  <span class="badge badge-mock">MOCK</span>
+  <span id="state-badge" class="badge">NAVIGATING</span>
+  <span style="margin-left:auto;font-size:0.75rem;color:#8b949e">
+    Disaster-Response Drone System &nbsp;&middot;&nbsp;
+    <span id="header-coords">waiting for GPS&hellip;</span>
+  </span>
+</header>
+<div class="main">
+  <aside class="left-panel">
+    <div class="panel">
+      <h2>Drone Status</h2>
+      <div class="status-grid">
+        <div class="stat"><div class="label">Altitude</div><div class="value cyan" id="stat-alt">&mdash;</div></div>
+        <div class="stat"><div class="label">Speed</div><div class="value cyan" id="stat-speed">&mdash;</div></div>
+        <div class="stat"><div class="label">Obstacles</div><div class="value" id="stat-obs">0</div></div>
+        <div class="stat"><div class="label">Terrain</div><div class="value" id="stat-terrain">&mdash;</div></div>
+        <div class="stat" style="grid-column:span 2"><div class="label">GPS</div>
+          <div class="value" id="stat-gps" style="font-size:0.8rem">&mdash;</div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Demo Scenario</h2>
+      <div class="scenario-btns">
+        <button id="btn-clear"     onclick="setScenario('clear')">&#10003; Clear</button>
+        <button id="btn-obstacle"  onclick="setScenario('obstacle')">&#9888; Obstacle</button>
+        <button id="btn-emergency" onclick="setScenario('emergency')">&#128680; Emergency</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Drone Speed</h2>
+      <div class="speed-row">
+        <input type="range" id="speed-slider" min="0" max="20" step="0.5" value="2"
+               oninput="onSpeedSlider(this.value)"/>
+        <span class="speed-val" id="speed-val-label">2.0 m/s</span>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Route Finder</h2>
+      <div class="route-form">
+        <select id="origin"><option value="">&mdash; Origin &mdash;</option></select>
+        <select id="destination"><option value="">&mdash; Destination &mdash;</option></select>
+        <button onclick="findRoute()">Find Safest Route</button>
+        <button id="use-route-btn" onclick="useRoute()" style="display:none;background:#0d2033;border-color:#3fb950;color:#3fb950">&#9654; Fly Route</button>
+        <button id="stop-auto-btn" onclick="stopAuto()" style="display:none;background:#2d1b1e;border-color:#f85149;color:#f85149">&#9646;&#9646; Stop</button>
+      </div>
+      <div id="route-result"></div>
+    </div>
+    <div class="panel">
+      <h2>Patrol Mode</h2>
+      <p style="font-size:0.75rem;color:#8b949e;margin:0 0 8px">Drone circles all checkpoints in order, continuously.</p>
+      <div style="display:flex;gap:6px">
+        <button id="patrol-btn" onclick="startPatrol()" style="flex:1;background:#0d2033;border-color:#58a6ff;color:#58a6ff">&#128260; Start Patrol</button>
+        <button onclick="stopAuto()" style="background:#2d1b1e;border-color:#f85149;color:#f85149">&#9646;&#9646; Stop</button>
+      </div>
+      <div id="patrol-status" style="font-size:0.72rem;color:#8b949e;margin-top:6px"></div>
+    </div>
+    <div class="panel">
+      <h2>Add Flood Zone</h2>
+      <div class="flood-form">
+        <input id="fz-lat"    type="number" step="0.0001" placeholder="Latitude"   value="28.6198"/>
+        <input id="fz-lon"    type="number" step="0.0001" placeholder="Longitude"  value="77.2102"/>
+        <input id="fz-radius" type="number" placeholder="Radius (m)"  value="100"/>
+        <input id="fz-risk"   type="number" step="0.1" min="0" max="1" placeholder="Risk 0-1" value="0.8"/>
+        <button onclick="addFloodZone()">Register Flood Zone</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>System Alerts</h2>
+      <div id="alert-list"><span style="color:#8b949e;font-size:0.75rem">No alerts.</span></div>
+    </div>
+  </aside>
+  <div class="centre">
+    <div id="map-toolbar">
+      <button class="map-mode-btn" id="mode-btn-none"     onclick="setMapMode('none')">&#128433; View</button>
+      <button class="map-mode-btn" id="mode-btn-move"     onclick="setMapMode('move')">&#128205; Move Drone</button>
+      <button class="map-mode-btn" id="mode-btn-obstacle" onclick="setMapMode('obstacle')">&#9940; Add Obstacle</button>
+      <button class="map-mode-btn" id="mode-btn-wall"     onclick="setMapMode('wall')">&#9646;&#9646; Draw Wall</button>
+      <button class="map-mode-btn danger"                 onclick="clearObstacles()">&#128465; Clear All</button>
+      <span id="map-mode-hint">Click the map after selecting a mode above</span>
+    </div>
+    <div id="map"></div>
+    <div id="narrative-bar">
+      <span id="narrative-icon">&#9992;</span>
+      <span id="narrative-text">Waiting for drone data&hellip;</span>
+    </div>
+  </div>
+  <aside class="right-panel">
+    <div class="panel">
+      <h2>LiDAR 360&deg; Radar</h2>
+      <div id="radar-wrap"><canvas id="radar" width="240" height="240"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Heading Compass</h2>
+      <div id="compass-wrap">
+        <canvas id="compass" width="90" height="90"></canvas>
+        <div id="heading-text">0&deg;</div>
+      </div>
+    </div>
+    <div id="obs-chart-wrap">
+      <h2>Obstacle Proximity (sectors)</h2>
+      <div id="obs-bars"></div>
+      <div id="obs-labels"></div>
+    </div>
+    <div><span id="terrain-chip" style="background:#0f3d1a;color:#3fb950">open</span></div>
+  </aside>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+"use strict";
+var API = "http://localhost:8000";
+var MAX_RANGE = 8.0;
+var STATE_COLORS = {NAVIGATING:"#3fb950",AVOIDING:"#d29922",HOVERING:"#58a6ff",EMERGENCY:"#f85149"};
+var TERRAIN_STYLE = {
+  open:     {bg:"#0f3d1a",fg:"#3fb950"},
+  corridor: {bg:"#1c2a0a",fg:"#7ee787"},
+  cluttered:{bg:"#3a2700",fg:"#d29922"},
+  blocked:  {bg:"#2d1b1e",fg:"#f85149"},
+  unknown:  {bg:"#161b22",fg:"#8b949e"}
+};
+var lmap = L.map("map",{zoomControl:true}).setView([28.6155,77.2095],15);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+  attribution:"© OpenStreetMap contributors",maxZoom:19
+}).addTo(lmap);
+var droneIcon = L.divIcon({
+  html:"<div style='font-size:26px;line-height:1;filter:drop-shadow(0 0 6px #58a6ff88);" +
+       "transform:translateX(-50%) translateY(-50%)'>🚁</div>",
+  className:"",iconAnchor:[0,0]
+});
+var droneMarker=null, droneTrail=[], trailLine=null, routeLayer=null, floodCircles=[];
+var _graphNodes=[];
+function loadGraph(){
+  fetch(API+"/graph").then(function(r){return r.json();}).then(function(data){
+    _graphNodes=data.nodes.slice();
+    data.nodes.forEach(function(n){
+      var c=n.flood_risk>0.6?"#f85149":n.flood_risk>0.2?"#d29922":"#3fb950";
+      L.circleMarker([n.lat,n.lon],{radius:8,color:c,fillColor:c,fillOpacity:0.75,weight:2})
+        .addTo(lmap).bindPopup("<b>"+(n.label||n.id)+"</b><br>Risk: "+n.flood_risk.toFixed(2));
+      L.marker([n.lat,n.lon],{icon:L.divIcon({
+        html:"<div style='font-size:10px;color:#e6edf3;white-space:nowrap;text-shadow:0 0 4px #000;"+
+             "font-weight:600;margin-top:12px'>"+(n.label||n.id)+"</div>",className:""
+      })}).addTo(lmap);
+    });
+    data.edges.forEach(function(e){
+      var f=data.nodes.find(function(x){return x.id===e.from;});
+      var t=data.nodes.find(function(x){return x.id===e.to;});
+      if(!f||!t)return;
+      L.polyline([[f.lat,f.lon],[t.lat,t.lon]],{
+        color:e.blocked?"#f85149":"#30363d",weight:2,opacity:0.65,
+        dashArray:e.blocked?"6,4":null
+      }).addTo(lmap);
+    });
+    ["origin","destination"].forEach(function(id){
+      var sel=document.getElementById(id);
+      data.nodes.forEach(function(n){
+        var o=document.createElement("option");
+        o.value=n.id;o.textContent=n.label||n.id;sel.appendChild(o);
+      });
+    });
+  }).catch(function(e){console.warn("Graph failed",e);});
+}
+var rcan=document.getElementById("radar"),rctx=rcan.getContext("2d"),R=rcan.width/2;
+function drawRadar(dm,obs,heading){
+  var W=rcan.width;
+  rctx.clearRect(0,0,W,W);
+  rctx.fillStyle="#0d1117";
+  rctx.beginPath();rctx.arc(R,R,R-2,0,Math.PI*2);rctx.fill();
+  [2,4,6,8].forEach(function(rm){
+    var fr=rm/MAX_RANGE,r=(R-4)*fr;
+    rctx.beginPath();rctx.arc(R,R,r,0,Math.PI*2);
+    rctx.strokeStyle="#21262d";rctx.lineWidth=1;rctx.stroke();
+    rctx.fillStyle="#484f58";rctx.font="8px sans-serif";
+    rctx.fillText(rm+"m",R+r+2,R-2);
+  });
+  rctx.strokeStyle="#21262d";rctx.lineWidth=1;
+  rctx.beginPath();rctx.moveTo(R,4);rctx.lineTo(R,W-4);rctx.stroke();
+  rctx.beginPath();rctx.moveTo(4,R);rctx.lineTo(W-4,R);rctx.stroke();
+  var hr=(heading-90)*Math.PI/180;
+  rctx.strokeStyle="#3fb950";rctx.lineWidth=2;
+  rctx.beginPath();rctx.moveTo(R,R);
+  rctx.lineTo(R+Math.cos(hr)*(R-6),R+Math.sin(hr)*(R-6));rctx.stroke();
+  if(dm){
+    Object.keys(dm).forEach(function(k){
+      var ang=parseFloat(k),dist=dm[k];
+      if(dist==null)return;
+      var fr=Math.min(dist,MAX_RANGE)/MAX_RANGE,pr=(R-4)*fr;
+      var s=(ang-2.5-90)*Math.PI/180,e=(ang+2.5-90)*Math.PI/180;
+      rctx.beginPath();rctx.moveTo(R,R);rctx.arc(R,R,pr,s,e);rctx.closePath();
+      rctx.fillStyle=dist<2.0?"rgba(248,81,73,"+(0.6+0.4*(1-fr))+")":"rgba(31,111,235,0.15)";
+      rctx.fill();
+    });
+  }
+  if(obs){
+    obs.forEach(function(o){
+      var fr=Math.min(o.distance_m,MAX_RANGE)/MAX_RANGE,r=(R-4)*fr;
+      var rad=(o.angle_deg-90)*Math.PI/180;
+      var x=R+Math.cos(rad)*r,y=R+Math.sin(rad)*r;
+      var dc=o.severity==="critical"?"#f85149":o.severity==="warning"?"#d29922":"#58a6ff";
+      rctx.beginPath();rctx.arc(x,y,5,0,Math.PI*2);
+      rctx.fillStyle=dc;rctx.fill();
+      rctx.strokeStyle="#fff";rctx.lineWidth=1;rctx.stroke();
+    });
+  }
+  rctx.beginPath();rctx.arc(R,R,5,0,Math.PI*2);
+  rctx.fillStyle="#58a6ff";rctx.fill();
+  rctx.strokeStyle="#fff";rctx.lineWidth=2;rctx.stroke();
+  rctx.font="bold 10px sans-serif";rctx.fillStyle="#8b949e";rctx.textAlign="center";
+  rctx.fillText("N",R,14);rctx.fillText("S",R,W-4);
+  rctx.textAlign="left";rctx.fillText("E",W-12,R+4);
+  rctx.textAlign="right";rctx.fillText("W",12,R+4);
+  rctx.textAlign="left";
+}
+var ccan=document.getElementById("compass"),cctx=ccan.getContext("2d"),CR=ccan.width/2;
+function drawCompass(heading){
+  var W=ccan.width;
+  cctx.clearRect(0,0,W,W);
+  cctx.beginPath();cctx.arc(CR,CR,CR-2,0,Math.PI*2);
+  cctx.strokeStyle="#30363d";cctx.lineWidth=3;cctx.stroke();
+  cctx.fillStyle="#0d1117";cctx.fill();
+  for(var i=0;i<36;i++){
+    var rad=(i*10-90)*Math.PI/180,inner=i%9===0?CR-14:CR-9;
+    cctx.beginPath();
+    cctx.moveTo(CR+Math.cos(rad)*inner,CR+Math.sin(rad)*inner);
+    cctx.lineTo(CR+Math.cos(rad)*(CR-3),CR+Math.sin(rad)*(CR-3));
+    cctx.strokeStyle=i%9===0?"#8b949e":"#30363d";
+    cctx.lineWidth=i%9===0?2:1;cctx.stroke();
+  }
+  var r=(heading-90)*Math.PI/180;
+  cctx.save();cctx.translate(CR,CR);cctx.rotate(r);
+  cctx.beginPath();cctx.moveTo(0,-(CR-16));cctx.lineTo(-5,8);cctx.lineTo(5,8);cctx.closePath();
+  cctx.fillStyle="#58a6ff";cctx.fill();cctx.restore();
+  cctx.beginPath();cctx.arc(CR,CR,4,0,Math.PI*2);cctx.fillStyle="#fff";cctx.fill();
+  document.getElementById("heading-text").textContent=
+    heading!=null?Math.round(heading)+"°":"—";
+}
+var SECTORS=[
+  {l:"N",c:0},{l:"NE",c:45},{l:"E",c:90},{l:"SE",c:135},
+  {l:"S",c:180},{l:"SW",c:225},{l:"W",c:270},{l:"NW",c:315}
+];
+var barsEl=document.getElementById("obs-bars"),labsEl=document.getElementById("obs-labels");
+SECTORS.forEach(function(s){
+  var b=document.createElement("div");b.className="obs-bar";b.id="bar-"+s.l;
+  b.style.background="#21262d";barsEl.appendChild(b);
+  var lbl=document.createElement("span");lbl.textContent=s.l;labsEl.appendChild(lbl);
+});
+function updateObsBars(dm){
+  if(!dm||!Object.keys(dm).length)return;
+  SECTORS.forEach(function(s){
+    var minD=MAX_RANGE;
+    Object.keys(dm).forEach(function(k){
+      var ang=parseFloat(k),dist=dm[k];
+      if(dist==null)return;
+      var delta=Math.abs(ang-s.c);if(delta>180)delta=360-delta;
+      if(delta<=30&&dist<minD)minD=dist;
+    });
+    var fr=1-Math.min(minD,MAX_RANGE)/MAX_RANGE;
+    var hpx=Math.max(2,Math.round(fr*60));
+    var col=minD<0.5?"#f85149":minD<1.0?"#d29922":minD<2.0?"#58a6ff":"#21262d";
+    var bar=document.getElementById("bar-"+s.l);
+    bar.style.height=hpx+"px";bar.style.background=col;
+  });
+}
+function updateTerrainChip(t){
+  var chip=document.getElementById("terrain-chip");
+  var st=TERRAIN_STYLE[t]||TERRAIN_STYLE.unknown;
+  chip.textContent=t||"unknown";chip.style.background=st.bg;chip.style.color=st.fg;
+}
+var NARR={
+  NAVIGATE:{i:"✈",t:function(h){return"Flying on heading "+h+"° — path is clear.";}},
+  AVOID:   {i:"↩",t:function(h){return"Obstacle detected — rerouting to "+h+"°!";}},
+  HOVER:   {i:"⏸",t:function(h){return"All directions blocked — holding position.";}},
+  STOP:    {i:"🛑",t:function(h){return"EMERGENCY STOP — object critically close!";}}
+};
+function updateNarrative(action,heading){
+  var n=NARR[action]||NARR.NAVIGATE;
+  var h=heading!=null?Math.round(heading):"?";
+  document.getElementById("narrative-icon").textContent=n.i;
+  document.getElementById("narrative-text").textContent=n.t(h);
+}
+function updateStateBadge(state){
+  var el=document.getElementById("state-badge");
+  el.textContent=state||"—";
+  var c=STATE_COLORS[state]||"#8b949e";
+  el.style.background=c+"33";el.style.color=c;el.style.border="1px solid "+c;
+}
+var _activeSc="clear";
+function setScenario(name){
+  fetch(API+"/scenario?name="+name,{method:"POST"}).then(function(){
+    _activeSc=name;updateScenarioBtns(name);
+    addAlert("caution","Scenario → "+name.toUpperCase());
+  }).catch(function(){addAlert("warning","Cannot reach backend.");});
+}
+function updateScenarioBtns(active){
+  ["clear","obstacle","emergency"].forEach(function(s){
+    document.getElementById("btn-"+s).className=(active===s)?"active-"+s:"";
+  });
+}
+function syncScenario(){
+  fetch(API+"/scenario").then(function(r){return r.json();}).then(function(d){
+    if(d.scenario!==_activeSc){_activeSc=d.scenario;updateScenarioBtns(_activeSc);}
+  }).catch(function(){});
+}
+function pollAll(){
+  Promise.allSettled([
+    fetch(API+"/status").then(function(r){return r.json();}),
+    fetch(API+"/scan").then(function(r){return r.json();})
+  ]).then(function(results){
+    var statusR=results[0],scanR=results[1];
+    if(statusR.status==="fulfilled"){
+      var d=statusR.value.drone||{};
+      if(d.lat&&d.lon){
+        _droneLat=d.lat; _droneLon=d.lon;
+        var pos=[d.lat,d.lon];
+        if(!droneMarker)droneMarker=L.marker(pos,{icon:droneIcon}).addTo(lmap);
+        else if(!_autoMode) droneMarker.setLatLng(pos);
+        droneTrail.push(pos);if(droneTrail.length>300)droneTrail.shift();
+        if(trailLine)lmap.removeLayer(trailLine);
+        trailLine=L.polyline(droneTrail,{color:"#58a6ff",weight:2,opacity:0.45}).addTo(lmap);
+      }
+      var fmt=function(v,d,s){return v!=null?parseFloat(v).toFixed(d)+s:"—";};
+      document.getElementById("stat-alt").textContent=fmt(d.altitude_m,1," m");
+      document.getElementById("stat-speed").textContent=fmt(d.groundspeed_ms,1," m/s");
+      document.getElementById("stat-gps").textContent=
+        d.lat?parseFloat(d.lat).toFixed(5)+", "+parseFloat(d.lon).toFixed(5):"—";
+      document.getElementById("header-coords").textContent=
+        d.lat?parseFloat(d.lat).toFixed(5)+", "+parseFloat(d.lon).toFixed(5):"";
+      updateStateBadge(d.state);
+      floodCircles.forEach(function(c){lmap.removeLayer(c);});floodCircles=[];
+      ((statusR.value.flood_zones||{}).zones||[]).forEach(function(z){
+        var c=L.circle([z.lat,z.lon],{radius:z.radius_m,color:"#f85149",fillColor:"#f85149",
+          fillOpacity:0.12*z.risk,weight:1.5}).addTo(lmap);
+        floodCircles.push(c);
+      });
+    }
+    if(scanR.status==="fulfilled"){
+      var scan=scanR.value.scan||{},dec=scanR.value.decision||{};
+      _latestDecision = dec;
+      _latestScanDM = scan.distance_map || {};
+      var heading=dec.safe_heading!=null?dec.safe_heading:0;
+      var action=dec.action||"NAVIGATE";
+      var terrain=scan.terrain_class||"unknown";
+      var obsArr=scan.obstacles||[];
+      drawRadar(scan.distance_map,obsArr,heading);
+      drawCompass(_autoMode!==null && _lastMoveHeading!==null ? _lastMoveHeading : heading);
+      updateObsBars(scan.distance_map);
+      updateTerrainChip(terrain);
+      updateNarrative(action,heading);
+      document.getElementById("stat-obs").textContent=obsArr.length;
+      document.getElementById("stat-obs").className="value "+(obsArr.length>0?"red":"green");
+      document.getElementById("stat-terrain").textContent=terrain;
+      document.getElementById("stat-terrain").className=
+        "value "+(terrain==="open"?"green":terrain==="blocked"?"red":"yellow");
+      (dec.alerts||[]).forEach(function(a){addAlert(a.level,a.message);});
+      updateScenarioBtns(scanR.value.scenario||_activeSc);
+      var bSpeed = scanR.value.speed;
+      if(bSpeed!=null && !_autoMode){
+        var slider=document.getElementById("speed-slider");
+        if(Math.abs(parseFloat(slider.value)-bSpeed)>0.1){
+          slider.value=bSpeed;
+          document.getElementById("speed-val-label").textContent=parseFloat(bSpeed).toFixed(1)+" m/s";
+        }
+      }
+    }
+  });
+}
+var _pendingWaypoints=[];
+function findRoute(){
+  var orig=document.getElementById("origin").value;
+  var dest=document.getElementById("destination").value;
+  if(!orig||!dest||orig===dest){alert("Select different origin and destination.");return;}
+  var res=document.getElementById("route-result");
+  res.innerHTML="<span style='color:#8b949e'>Calculating…</span>";
+  fetch(API+"/route?origin="+orig+"&destination="+dest).then(function(r){return r.json();}).then(function(data){
+    var route=data.route;
+    if(routeLayer)lmap.removeLayer(routeLayer);
+    var coords=route.waypoints.map(function(w){return[w.lat,w.lon];});
+    routeLayer=L.polyline(coords,{color:"#3fb950",weight:4,opacity:0.85}).addTo(lmap);
+    lmap.fitBounds(routeLayer.getBounds(),{padding:[40,40]});
+    function rc(r){return r>0.6?"#f85149":r>0.2?"#d29922":"#3fb950";}
+    res.innerHTML="<div style='margin-bottom:5px;font-size:0.72rem'><b style='color:#3fb950'>"+
+      route.hop_count+" hops</b> &middot; "+route.total_distance_m.toFixed(0)+" m &middot; risk <span style='color:"+
+      rc(route.max_flood_risk)+"'>"+route.max_flood_risk+"</span></div>"+
+      route.waypoints.map(function(w){
+        return"<div class='hop'><div class='dot' style='background:"+rc(w.flood_risk)+"'></div><span>"+
+          (w.label||w.node_id)+" <span style='color:#8b949e;font-size:0.65rem'>(risk "+w.flood_risk+")</span></span></div>";
+      }).join("");
+    addAlert("caution","Route: "+orig+" → "+dest+" ("+route.hop_count+" hops)");
+    _pendingWaypoints = route.waypoints.slice();
+    document.getElementById("use-route-btn").style.display="";
+  }).catch(function(){
+    document.getElementById("route-result").innerHTML="<span style='color:#f85149'>No route found or backend offline.</span>";
+    _pendingWaypoints=[];
+    document.getElementById("use-route-btn").style.display="none";
+  });
+}
+var MOVE_TICK_MS    = 250;
+var ARRIVE_THRESH_M = 8;
+var OBS_RADIUS_M    = 1.5;
+var RAY_LEN_M       = 500;
+var RAY_STEP_M      = 0.8;
+var BACK_DIST_M     = 2.0;
+var MAX_STEP_M      = 1.2;
+var MAX_TURN_DEG    = 20;
+var _autoTimer      = null;
+var _autoMode       = null;
+var _autoWaypoints  = [];
+var _autoIndex      = 0;
+var _autoLoop       = false;
+var _flyLat         = null;
+var _flyLon         = null;
+var _lastMoveHeading = null;
+var _latestDecision  = {action:"NAVIGATE", safe_heading: 0};
+var _latestScanDM    = {};
+var _currentHeading = 0;
+var _velocity       = 0;
+var _isBacking      = false;
+var _backRemain     = 0;
+var _clearHeading   = null;
+var _renderLat  = null;
+var _renderLon  = null;
+var _rafId      = null;
+var _rafLastTs  = 0;
+function _toXY(lat, lon, refLat, refLon){
+  var x = (lon - refLon) * 111320 * Math.cos(refLat * Math.PI/180);
+  var y = (lat - refLat) * 111320;
+  return {x:x, y:y};
+}
+function _fromXY(x, y, refLat, refLon){
+  return {
+    lat: refLat + y/111320,
+    lon: refLon + x/(111320*Math.cos(refLat*Math.PI/180))
+  };
+}
+function _rayClear(lat, lon, headingDeg){
+  var hRad = headingDeg * Math.PI/180;
+  var cosLat = Math.cos(lat * Math.PI/180);
+  var steps = Math.ceil(RAY_LEN_M / RAY_STEP_M);
+  for(var s=1; s<=steps; s++){
+    var dist = s * RAY_STEP_M;
+    var sLat = lat + dist*Math.cos(hRad)/111320;
+    var sLon = lon + dist*Math.sin(hRad)/(111320*cosLat);
+    for(var k=0; k<_obstaclePositions.length; k++){
+      if(haversineDist(sLat,sLon,_obstaclePositions[k].lat,_obstaclePositions[k].lon) < OBS_RADIUS_M){
+        return false;
+      }
+    }
+  }
+  return true;
+}
+function _findClearHeading(lat, lon, goalHeading){
+  for(var delta=0; delta<=180; delta+=10){
+    var candidates = delta===0 ? [goalHeading] : [(goalHeading+delta+360)%360, (goalHeading-delta+360)%360];
+    for(var ci=0; ci<candidates.length; ci++){
+      if(_rayClear(lat, lon, candidates[ci])) return candidates[ci];
+    }
+  }
+  return null;
+}
+function _flySpeed(){ return parseFloat(document.getElementById("speed-slider").value); }
+function _stopAutoTimer(){ if(_autoTimer!=null){clearInterval(_autoTimer);_autoTimer=null;} }
+function _animDrone(ts){
+  if(_flyLat===null || !droneMarker){ _rafId=requestAnimationFrame(_animDrone); return; }
+  if(_renderLat===null){ _renderLat=_flyLat; _renderLon=_flyLon; }
+  var dt = _rafLastTs ? Math.min((ts-_rafLastTs)/1000, 0.1) : 0;
+  _rafLastTs = ts;
+  var alpha = dt>0 ? 1-Math.exp(-12*dt) : 0.18;
+  _renderLat += (_flyLat-_renderLat)*alpha;
+  _renderLon += (_flyLon-_renderLon)*alpha;
+  droneMarker.setLatLng([_renderLat,_renderLon]);
+  _rafId = requestAnimationFrame(_animDrone);
+}
+function stopAuto(){
+  _stopAutoTimer();
+  if(_rafId){ cancelAnimationFrame(_rafId); _rafId=null; }
+  _autoMode=null; _autoLoop=false;
+  _flyLat=null; _flyLon=null; _lastMoveHeading=null;
+  _renderLat=null; _renderLon=null; _rafLastTs=0;
+  _currentHeading=0; _velocity=0;
+  _isBacking=false; _backRemain=0; _clearHeading=null;
+  document.getElementById("stop-auto-btn").style.display="none";
+  document.getElementById("use-route-btn").style.display=_pendingWaypoints.length?"":"none";
+  document.getElementById("patrol-status").textContent="";
+  document.getElementById("patrol-btn").textContent="\u{1F504} Start Patrol";
+  addAlert("caution","Auto-fly stopped");
+}
+function _moveStep(){
+  if(_autoMode===null) return;
+  if(_flyLat===null){
+    if(_droneLat===null) return;
+    _flyLat=_droneLat; _flyLon=_droneLon;
+  }
+  if(_autoIndex>=_autoWaypoints.length){
+    if(_autoLoop){
+      _autoIndex=0;
+    } else {
+      _stopAutoTimer(); _autoMode=null;
+      document.getElementById("stop-auto-btn").style.display="none";
+      addAlert("caution","Route complete \u2014 arrived at destination");
+      return;
+    }
+  }
+  var wp = _autoWaypoints[_autoIndex];
+  var distToWp = haversineDist(_flyLat,_flyLon,wp.lat,wp.lon);
+  if(distToWp <= ARRIVE_THRESH_M){
+    var label = wp.label||wp.node_id||wp.id||("waypoint "+(_autoIndex+1));
+    addAlert("caution","Reached "+label);
+    if(_autoMode==="patrol"){
+      var next=(_autoIndex+1)%_autoWaypoints.length;
+      document.getElementById("patrol-status").textContent=
+        "\u25B6 heading to "+(_autoWaypoints[next].label||"next")+" ("+(_autoIndex+1)+"/"+_autoWaypoints.length+")";
+    }
+    _autoIndex++;
+    _isBacking=false; _backRemain=0; _clearHeading=null;
+    _flyLat=wp.lat; _flyLon=wp.lon;
+    fetch(API+"/location?lat="+_flyLat+"&lon="+_flyLon,{method:"POST"}).catch(function(){});
+    return;
+  }
+  var speedCap = Math.min(_flySpeed()*(MOVE_TICK_MS/1000), MAX_STEP_M);
+  _velocity = Math.min(_velocity + 0.12, speedCap);
+  if(speedCap <= 0){ _velocity=0; return; }
+  var cosLat = Math.cos(_flyLat*Math.PI/180);
+  if(_isBacking){
+    var backStep = Math.min(_velocity, _backRemain);
+    var backRad  = ((_lastMoveHeading+180)%360) * Math.PI/180;
+    _flyLat += backStep*Math.cos(backRad)/111320;
+    _flyLon += backStep*Math.sin(backRad)/(111320*cosLat);
+    _backRemain -= backStep;
+    if(_backRemain <= 0){
+      _isBacking = false;
+      _velocity  = 0;
+      var goalHeading = bearing(_flyLat,_flyLon,wp.lat,wp.lon);
+      _clearHeading = _findClearHeading(_flyLat, _flyLon, goalHeading);
+    }
+    fetch(API+"/location?lat="+_flyLat+"&lon="+_flyLon,{method:"POST"}).catch(function(){});
+    return;
+  }
+  var goalHeading = bearing(_flyLat,_flyLon,wp.lat,wp.lon);
+  var moveHeading;
+  if(_clearHeading === null){
+    if(_rayClear(_flyLat, _flyLon, goalHeading)){
+      _clearHeading = goalHeading;
+    } else {
+      _clearHeading = _findClearHeading(_flyLat, _flyLon, goalHeading);
+    }
+  } else {
+    if(!_rayClear(_flyLat, _flyLon, _clearHeading)){
+      _clearHeading = _findClearHeading(_flyLat, _flyLon, goalHeading);
+    } else if(_rayClear(_flyLat, _flyLon, goalHeading)){
+      _clearHeading = goalHeading;
+    }
+  }
+  if(_clearHeading === null){
+    _isBacking=true; _backRemain=BACK_DIST_M; _velocity=0;
+    return;
+  }
+  moveHeading = _clearHeading;
+  var mRad = moveHeading * Math.PI/180;
+  var nextLat = _flyLat + _velocity*Math.cos(mRad)/111320;
+  var nextLon = _flyLon + _velocity*Math.sin(mRad)/(111320*cosLat);
+  var stepBlocked = false;
+  for(var k=0; k<_obstaclePositions.length; k++){
+    if(haversineDist(nextLat,nextLon,_obstaclePositions[k].lat,_obstaclePositions[k].lon) < OBS_RADIUS_M){
+      stepBlocked=true; break;
+    }
+  }
+  if(stepBlocked){
+    _isBacking=true; _backRemain=BACK_DIST_M; _clearHeading=null; _velocity=0;
+    return;
+  }
+  var diff = ((moveHeading - _currentHeading + 540) % 360) - 180;
+  if(Math.abs(diff) > MAX_TURN_DEG){
+    _currentHeading = (_currentHeading + Math.sign(diff)*MAX_TURN_DEG + 360) % 360;
+  } else {
+    _currentHeading = moveHeading;
+  }
+  _lastMoveHeading = moveHeading;
+  _flyLat = nextLat;
+  _flyLon = nextLon;
+  fetch(API+"/location?lat="+_flyLat+"&lon="+_flyLon,{method:"POST"}).catch(function(){});
+}
+function useRoute(){
+  if(!_pendingWaypoints.length){alert("Find a route first.");return;}
+  stopAuto();
+  _autoWaypoints = _pendingWaypoints.slice();
+  _autoIndex = 0;
+  _autoLoop  = false;
+  _autoMode  = "route";
+  _flyLat = _droneLat; _flyLon = _droneLon;
+  document.getElementById("use-route-btn").style.display="none";
+  document.getElementById("stop-auto-btn").style.display="";
+  addAlert("caution","Auto-fly started \u2014 "+_autoWaypoints.length+" waypoints");
+  _autoTimer = setInterval(_moveStep, MOVE_TICK_MS);
+  _rafId = requestAnimationFrame(_animDrone);
+}
+var PATROL_ORDER=["supply_depot","checkpoint_1","hospital","bridge_north","checkpoint_2","rescue_base","shelter_b","shelter_a"];
+function startPatrol(){
+  if(!_graphNodes.length){alert("Graph not loaded yet.");return;}
+  stopAuto();
+  var nodeMap={}; _graphNodes.forEach(function(n){nodeMap[n.id]=n;});
+  var ordered=PATROL_ORDER.map(function(id){return nodeMap[id];}).filter(Boolean);
+  if(!ordered.length) ordered=_graphNodes.slice();
+  _autoWaypoints=ordered.map(function(n){return {lat:n.lat,lon:n.lon,label:n.label||n.id};});
+  _autoIndex = 0;
+  _autoLoop  = true;
+  _autoMode  = "patrol";
+  _flyLat = _droneLat; _flyLon = _droneLon;
+  document.getElementById("patrol-btn").textContent="\u{1F504} Patrolling\u2026";
+  document.getElementById("stop-auto-btn").style.display="";
+  document.getElementById("patrol-status").textContent="\u25B6 heading to "+(_autoWaypoints[0].label||"checkpoint 1");
+  addAlert("warning","Patrol started \u2014 "+_autoWaypoints.length+" checkpoints, looping");
+  _autoTimer = setInterval(_moveStep, MOVE_TICK_MS);
+  _rafId = requestAnimationFrame(_animDrone);
+}
+function addFloodZone(){
+  var body={
+    lat:parseFloat(document.getElementById("fz-lat").value),
+    lon:parseFloat(document.getElementById("fz-lon").value),
+    radius_m:parseFloat(document.getElementById("fz-radius").value),
+    risk:parseFloat(document.getElementById("fz-risk").value)
+  };
+  fetch(API+"/flood-zone",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+    .then(function(){addAlert("warning","Flood zone @ ("+body.lat+", "+body.lon+"), risk="+body.risk);})
+    .catch(function(){addAlert("critical","Could not register flood zone.");});
+}
+var _alerts=[],_recent={};
+function addAlert(level,message){
+  var now=Date.now();
+  if(_recent[message]&&now-_recent[message]<3000)return;
+  _recent[message]=now;
+  _alerts.unshift({level:level,message:message,time:new Date().toLocaleTimeString()});
+  if(_alerts.length>30)_alerts.pop();
+  document.getElementById("alert-list").innerHTML=
+    _alerts.map(function(a){
+      return"<div class='alert-item "+a.level+"'>"+a.message+
+             "<div class='atime'>"+a.time+"</div></div>";
+    }).join("");
+}
+loadGraph();
+updateScenarioBtns("clear");
+drawRadar({}, [], 0);
+drawCompass(0);
+setMapMode("none");
+var _speedDebounce = null;
+function onSpeedSlider(val){
+  var v = parseFloat(val);
+  document.getElementById("speed-val-label").textContent = v.toFixed(1) + " m/s";
+  clearTimeout(_speedDebounce);
+  _speedDebounce = setTimeout(function(){
+    fetch(API+"/speed?value="+v,{method:"POST"}).catch(function(){});
+    addAlert("caution","Speed set to "+v.toFixed(1)+" m/s");
+  }, 300);
+}
+function syncSpeed(){
+  if(_autoMode) return;
+  fetch(API+"/speed").then(function(r){return r.json();}).then(function(d){
+    var s = parseFloat(d.speed||2);
+    var slider = document.getElementById("speed-slider");
+    if(Math.abs(parseFloat(slider.value)-s)>0.1){
+      slider.value = s;
+      document.getElementById("speed-val-label").textContent = s.toFixed(1)+" m/s";
+    }
+  }).catch(function(){});
+}
+var _mapMode = "none";
+var _droneLat = null, _droneLon = null;
+var _obstacleMarkers = [];
+var _obstacleIds = [];
+var _obstaclePositions = [];
+var _wallStart = null;
+var _wallPreview = null;
+function setMapMode(mode){
+  if(_wallStart !== null && mode !== "wall"){
+    _wallStart = null;
+    if(_wallPreview){ lmap.removeLayer(_wallPreview); _wallPreview=null; }
+  }
+  _mapMode = mode;
+  ["none","move","obstacle","wall"].forEach(function(m){
+    var btn = document.getElementById("mode-btn-"+m);
+    if(btn) btn.className = "map-mode-btn" + (m===mode?" active":"");
+  });
+  var hints = {
+    none:     "Click the map after selecting a mode above",
+    move:     "Click anywhere on the map to teleport the drone there",
+    obstacle: "Click anywhere on the map to place an obstacle",
+    wall:     "Click to set wall START, then click again to set END — obstacles fill the line"
+  };
+  document.getElementById("map-mode-hint").textContent = hints[mode]||"";
+  lmap.getContainer().style.cursor = mode==="none" ? "" : "crosshair";
+}
+function haversineDist(lat1,lon1,lat2,lon2){
+  var R=6371000;
+  var f1=lat1*Math.PI/180, f2=lat2*Math.PI/180;
+  var df=(lat2-lat1)*Math.PI/180, dl=(lon2-lon1)*Math.PI/180;
+  var a=Math.sin(df/2)*Math.sin(df/2)+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)*Math.sin(dl/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function bearing(lat1,lon1,lat2,lon2){
+  var f1=lat1*Math.PI/180, f2=lat2*Math.PI/180;
+  var dl=(lon2-lon1)*Math.PI/180;
+  var y=Math.sin(dl)*Math.cos(f2);
+  var x=Math.cos(f1)*Math.sin(f2)-Math.sin(f1)*Math.cos(f2)*Math.cos(dl);
+  return (Math.atan2(y,x)*180/Math.PI+360)%360;
+}
+lmap.on("click",function(e){
+  if(_mapMode==="none") return;
+  var lat=e.latlng.lat, lon=e.latlng.lng;
+  if(_mapMode==="move"){
+    fetch(API+"/location?lat="+lat+"&lon="+lon,{method:"POST"}).catch(function(){addAlert("warning","Could not set location.");});
+    _droneLat=lat; _droneLon=lon;
+    if(_flyLat!==null){ _flyLat=lat; _flyLon=lon; }
+    _renderLat=lat; _renderLon=lon;
+    var pos=[lat,lon];
+    if(!droneMarker) droneMarker=L.marker(pos,{icon:droneIcon}).addTo(lmap);
+    else droneMarker.setLatLng(pos);
+    droneTrail.push(pos); if(droneTrail.length>300) droneTrail.shift();
+    if(trailLine) lmap.removeLayer(trailLine);
+    trailLine=L.polyline(droneTrail,{color:"#58a6ff",weight:2,opacity:0.45}).addTo(lmap);
+    addAlert("caution","Drone teleported to ("+lat.toFixed(5)+", "+lon.toFixed(5)+")");
+    setMapMode("none");
+    return;
+  }
+  if(_mapMode==="obstacle"){
+    var body = {lat: lat, lon: lon};
+    fetch(API+"/obstacle",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.success){
+          _obstacleIds.push(d.obstacle.id);
+          _obstaclePositions.push({lat:lat, lon:lon});
+          var icon = L.divIcon({
+            html:"<div style='font-size:18px;line-height:1;transform:translate(-50%,-50%)'>&#9940;</div>",
+            className:"",iconAnchor:[0,0]
+          });
+          var m = L.marker([lat,lon],{icon:icon})
+            .addTo(lmap)
+            .bindPopup("Obstacle");
+          _obstacleMarkers.push(m);
+          addAlert("warning","Obstacle placed at ("+lat.toFixed(5)+", "+lon.toFixed(5)+")");
+        }
+      }).catch(function(){addAlert("critical","Could not add obstacle.");});
+    return;
+  }
+  if(_mapMode==="wall"){
+    if(_wallStart===null){
+      _wallStart = {lat:lat, lon:lon};
+      if(_wallPreview) lmap.removeLayer(_wallPreview);
+      _wallPreview = L.polyline([[lat,lon],[lat,lon]],
+        {color:"#f85149",weight:3,dashArray:"8,5",opacity:0.85}).addTo(lmap);
+      lmap.on("mousemove", _wallMouseMove);
+      document.getElementById("map-mode-hint").textContent =
+        "Wall start set \u2014 now click to place the END point";
+    } else {
+      lmap.off("mousemove", _wallMouseMove);
+      if(_wallPreview){ lmap.removeLayer(_wallPreview); _wallPreview=null; }
+      var startLat=_wallStart.lat, startLon=_wallStart.lon;
+      _wallStart = null;
+      document.getElementById("map-mode-hint").textContent =
+        "Wall \u2014 click to set wall START, then click again to set END";
+      _buildWall(startLat, startLon, lat, lon);
+    }
+    return;
+  }});
+function _wallMouseMove(e){
+  if(_wallPreview && _wallStart){
+    _wallPreview.setLatLngs([[_wallStart.lat,_wallStart.lon],[e.latlng.lat,e.latlng.lng]]);
+  }
+}
+function _buildWall(lat1, lon1, lat2, lon2){
+  var totalDist = haversineDist(lat1,lon1,lat2,lon2);
+  var SPACING_M = 1;
+  var steps = Math.max(1, Math.round(totalDist / SPACING_M));
+  L.polyline([[lat1,lon1],[lat2,lon2]],{color:"#f85149",weight:4,opacity:0.7}).addTo(lmap);
+  var placed = 0;
+  var obIcon = L.divIcon({
+    html:"<div style='font-size:12px;line-height:1;transform:translate(-50%,-50%)'>&#9940;</div>",
+    className:"",iconAnchor:[0,0]
+  });
+  for(var i=0; i<=steps; i++){
+    var t = steps===0 ? 0 : i/steps;
+    var pLat = lat1 + (lat2-lat1)*t;
+    var pLon = lon1 + (lon2-lon1)*t;
+    _obstaclePositions.push({lat:pLat, lon:pLon});
+    (function(plat,plon){
+      fetch(API+"/obstacle",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({lat:plat,lon:plon})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d.success){
+            _obstacleIds.push(d.obstacle.id);
+            var m=L.marker([plat,plon],{icon:obIcon}).addTo(lmap);
+            _obstacleMarkers.push(m);
+          }
+        }).catch(function(){});
+    })(pLat,pLon);
+    placed++;
+  }
+  addAlert("warning","Wall placed: "+placed+" obstacles over "+totalDist.toFixed(0)+" m");
+}
+function clearObstacles(){
+  Promise.all([
+    fetch(API+"/obstacles/clear",{method:"POST"}),
+    fetch(API+"/scenario?name=clear",{method:"POST"})
+  ]).then(function(){
+    _obstacleIds=[];
+    _obstaclePositions=[];
+    _obstacleMarkers.forEach(function(m){lmap.removeLayer(m);});
+    _obstacleMarkers=[];
+    _activeSc="clear";
+    updateScenarioBtns("clear");
+    addAlert("caution","All obstacles cleared — scenario reset to clear sky");
+  }).catch(function(){addAlert("warning","Could not clear obstacles.");});
+}
+setInterval(pollAll, 1000);
+setInterval(syncScenario, 2000);
+setInterval(syncSpeed, 2000);
+</script>
+</body>
+</html>

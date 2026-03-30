@@ -1,0 +1,3 @@
+cd ~/Desktop/streetsafe
+./run_demo.sh
+http://localhost:9000
