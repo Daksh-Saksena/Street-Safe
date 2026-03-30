@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TISB - Traffic Intelligence & Safety Routing</title>
+  <style>
+    @import url('style.css');
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>TISB - Traffic Intelligence & Safety Routing</h1>
+      <p>A comprehensive system for route optimization, road risk assessment, and intelligent traffic simulation under adverse weather conditions</p>
+    </header>
+
+    <nav>
+      <a onclick="showSection('overview')">Overview</a>
+      <a onclick="showSection('modules')">Modules</a>
+      <a onclick="showSection('vehicles')">Vehicles</a>
+      <a onclick="showSection('routing')">Routing Engine</a>
+      <a onclick="showSection('risk')">Risk Assessment</a>
+      <a onclick="showSection('simulation')">Simulation</a>
+    </nav>
+
+    <div class="content">
+      <!-- Overview Section -->
+      <section id="overview" class="active">
+        <h2>Project Overview</h2>
+        <p>TISB is an intelligent traffic routing system designed to optimize vehicle routes based on road conditions, weather, and vehicle characteristics. The system computes optimal paths for different vehicle types while accounting for flood risk, road classes, and vehicle capabilities.</p>
+
+        <h3>Key Features</h3>
+        <div class="features">
+          <div class="feature-card">
+            <h4>Multi-Vehicle Support</h4>
+            <p>Optimized routing for cars, SUVs, and bikes with vehicle-specific parameters</p>
+          </div>
+          <div class="feature-card">
+            <h4>Weather-Aware Routing</h4>
+            <p>Considers flood depth and rain intensity when calculating route costs</p>
+          </div>
+          <div class="feature-card">
+            <h4>Risk Assessment</h4>
+            <p>Evaluates road safety based on elevation, terrain, and weather conditions</p>
+          </div>
+          <div class="feature-card">
+            <h4>Traffic Simulation</h4>
+            <p>Simulates large-scale traffic with realistic routing decisions</p>
+          </div>
+        </div>
+
+        <h3>System Architecture</h3>
+        <div class="algorithm-flow">
+          <div class="flow-step">
+            <div class="flow-step-number">1</div>
+            <div>Vehicle profiles and characteristics are defined</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">2</div>
+            <div>Road network graph is loaded with edge attributes (length, road class, flood depth)</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">3</div>
+            <div>For each route request, edge weights are computed based on vehicle profile and conditions</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">4</div>
+            <div>Dijkstra's algorithm finds the shortest path using computed weights</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">5</div>
+            <div>Results include path coordinates and total route cost</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Modules Section -->
+      <section id="modules">
+        <h2>Python Modules</h2>
+
+        <div class="module">
+          <div class="module-title">car.py - Vehicle Profiles</div>
+          <div class="module-description">
+            Defines vehicle characteristics and profiles for different vehicle types. Each vehicle has specific speed multipliers for different road classes, flood sensitivity, and impassable flood depths.
+          </div>
+          <h4>Key Components:</h4>
+          <ul class="function-list">
+            <li><strong>Cars dataclass</strong>: Stores vehicle attributes (name, speed, road multipliers, flood parameters, color)</li>
+            <li><strong>get_vehicle_profile()</strong>: Retrieves a vehicle profile by type</li>
+            <li><strong>create_vehicle()</strong>: Creates a vehicle instance with ID and type</li>
+            <li><strong>Predefined profiles:</strong> SUV, Car, and Bike</li>
+          </ul>
+        </div>
+
+        <div class="module">
+          <div class="module-title">cost.py - Edge Weight Calculation</div>
+          <div class="module-description">
+            Computes the cost (weight) of traveling along a road edge based on vehicle profile, road characteristics, and flood conditions. This is the core of the routing optimization.
+          </div>
+          <h4>Key Functions:</h4>
+          <ul class="function-list">
+            <li><strong>compute_speed_in_flood()</strong>: Calculates speed reduction based on flood depth</li>
+            <li><strong>compute_travel_time()</strong>: Determines time to travel an edge at given speed</li>
+            <li><strong>compute_flooding_exposure()</strong>: Calculates flood area exposure</li>
+            <li><strong>compute_edge_weight()</strong>: Main function that combines all factors into a single edge cost</li>
+          </ul>
+        </div>
+
+        <div class="module">
+          <div class="module-title">router.py - Pathfinding Engine</div>
+          <div class="module-description">
+            Uses NetworkX's Dijkstra algorithm to find optimal routes through the road network. Dynamically computes edge weights based on vehicle profile and current conditions.
+          </div>
+          <h4>Key Functions:</h4>
+          <ul class="function-list">
+            <li><strong>compute_route()</strong>: Finds shortest path from source to target for a specific vehicle</li>
+            <li>Returns: path (list of nodes), vehicle type, and status (success/blocked)</li>
+            <li>Handles cases where routes are blocked due to flood depth</li>
+          </ul>
+        </div>
+
+        <div class="module">
+          <div class="module-title">simulation.py - Traffic Simulation</div>
+          <div class="module-description">
+            Simulates traffic by generating multiple trips with random vehicles, origins, and destinations. Calculates realistic routes and costs for each vehicle.
+          </div>
+          <h4>Key Functions:</h4>
+          <ul class="function-list">
+            <li><strong>simulate_traffic()</strong>: Runs traffic simulation with specified number of vehicles</li>
+            <li>Returns: List of trip results with path coordinates and costs</li>
+            <li>Supports success and stranded vehicle states</li>
+          </ul>
+        </div>
+
+        <div class="module">
+          <div class="module-title">roadrisk.py - Road Risk Assessment</div>
+          <div class="module-description">
+            Evaluates safety risk of roads based on multiple factors including rain intensity, elevation, and terrain flatness. Uses weighted scoring system.
+          </div>
+          <h4>Key Functions:</h4>
+          <ul class="function-list">
+            <li><strong>compute_road_risk()</strong>: Calculates risk score (0-1) for a single road</li>
+            <li><strong>compute_all_roads()</strong>: Computes risk for multiple roads</li>
+            <li><strong>get_safe_roads()</strong>: Filters roads below risk threshold</li>
+            <li><strong>Risk factors:</strong> Rain (55%), Low elevation (25%), Flatness (20%)</li>
+          </ul>
+        </div>
+
+        <div class="module">
+          <div class="module-title">gmaps2.py - Weather Data</div>
+          <div class="module-description">
+            Simple weather configuration module with rain presets and intensity levels. Used to configure environmental conditions for simulations.
+          </div>
+          <h4>Features:</h4>
+          <ul class="function-list">
+            <li><strong>Rain presets:</strong> Light (3mm), Medium (6mm), Heavy (9mm)</li>
+            <li><strong>rain_intensity()</strong>: Returns intensity value for a given mode</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Vehicles Section -->
+      <section id="vehicles">
+        <h2>Vehicle Profiles</h2>
+        <p>The system supports three vehicle types, each optimized for different conditions and with different vulnerabilities to flooding.</p>
+
+        <div class="vehicle-profiles">
+          <div class="vehicle-card">
+            <h4><span class="color-swatch" style="background-color: #1f77b4;"></span>SUV</h4>
+            <div class="vehicle-stat">
+              <strong>Base Speed:</strong>
+              <span>50 km/h</span>
+            </div>
+            <div class="vehicle-stat">
+              <strong>Impassable Depth:</strong>
+              <span>0.6 m</span>
+            </div>
+            <div class="vehicle-stat">
+              <strong>Flood Speed Loss:</strong>
+              <span>0.1 km/h per mm</span>
+            </div>
+            <div class="vehicle-stat">
+              <strong>Flood Penalty:</strong>
+              <span>50</span>
+            </div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+              <strong>Road Multipliers:</strong>
+              <ul style="margin-top: 8px; margin-left: 20px;">
+                <li>Highway: 2.0x</li>
+                <li>Primary: 1.0x</li>
+                <li>Secondary: 0.85x</li>
+                <li>Residential: 0.65x</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="vehicle-card">
+            <h4><span class="color-swatch" style="background-color: #ff7f0e;"></span>Car</h4>
+            <div class="vehicle-stat">
+              <strong>Base Speed:</strong>
+              <span>55 km/h</span>
+            </div>
+            <div class="vehicle-stat">
+              <strong>Impassable Depth:</strong>
+              <span>0.3 m</span>
+            </div>
+            <div class="vehicle-stat">
+              <strong>Flood Speed Loss:</strong>
+              <span>0.2 km/h per mm</span>
+            </div>
+            <div class="vehicle-stat">
+              <strong>Flood Penalty:</strong>
+              <span>200</span>
+            </div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+              <strong>Road Multipliers:</strong>
+              <ul style="margin-top: 8px; margin-left: 20px;">
+                <li>Highway: 1.8x</li>
+                <li>Primary: 0.9x</li>
+                <li>Secondary: 0.75x</li>
+                <li>Residential: 0.75x</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="vehicle-card">
+            <h4><span class="color-swatch" style="background-color: #2ca02c;"></span>Bike</h4>
+            <div class="vehicle-stat">
+              <strong>Base Speed:</strong>
+              <span>40 km/h</span>
+            </div>
+            <div class="vehicle-stat">
+              <strong>Impassable Depth:</strong>
+              <span>0.1 m</span>
+            </div>
+            <div class="vehicle-stat">
+              <strong>Flood Speed Loss:</strong>
+              <span>0.5 km/h per mm</span>
+            </div>
+            <div class="vehicle-stat">
+              <strong>Flood Penalty:</strong>
+              <span>500</span>
+            </div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+              <strong>Road Multipliers:</strong>
+              <ul style="margin-top: 8px; margin-left: 20px;">
+                <li>Highway: 1.5x</li>
+                <li>Primary: 1.0x</li>
+                <li>Secondary: 0.9x</li>
+                <li>Residential: 0.8x</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h3>Vehicle Characteristics Explained</h3>
+        <p><strong>Base Speed:</strong> Maximum speed on clear roads without flooding.</p>
+        <p><strong>Road Multipliers:</strong> Adjust base speed based on road type (highways are faster, residential roads slower).</p>
+        <p><strong>Impassable Flood Depth:</strong> Maximum water depth the vehicle can handle. Roads with deeper water are treated as impassable.</p>
+        <p><strong>Flood Speed Loss:</strong> How much speed is lost per mm of flood depth. Bikes are most sensitive, SUVs most resilient.</p>
+        <p><strong>Flood Penalty:</strong> Additional cost applied to flooded roads (beyond just travel time) to discourage their use.</p>
+      </section>
+
+      <!-- Routing Engine Section -->
+      <section id="routing">
+        <h2>Routing Engine</h2>
+        <p>The routing engine uses Dijkstra's algorithm to find optimal paths through road networks. Costs are dynamically computed based on vehicle profiles and environmental conditions.</p>
+
+        <h3>Algorithm Overview</h3>
+        <div class="algorithm-flow">
+          <div class="flow-step">
+            <div class="flow-step-number">1</div>
+            <div><strong>Input:</strong> Graph, starting coordinates, target coordinates, vehicle profile</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">2</div>
+            <div><strong>Nearest Node Lookup:</strong> Find nearest graph nodes to given coordinates using OSMnx</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">3</div>
+            <div><strong>Weight Function:</strong> Define dynamic weight calculation based on edge data and vehicle</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">4</div>
+            <div><strong>Pathfinding:</strong> Apply Dijkstra algorithm to find minimum-cost path</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">5</div>
+            <div><strong>Output:</strong> Return path nodes, vehicle type, and success/blocked status</div>
+          </div>
+        </div>
+
+        <h3>Cost Computation Formula</h3>
+        <p>For each edge in the network:</p>
+        <div class="code-example">
+            edge_weight = travel_time + (flood_exposure × flood_penalty)
+        </div>
+
+        <p>Where:</p>
+        <ul class="function-list">
+          <li><strong>travel_time</strong> = edge_length / adjusted_speed</li>
+          <li><strong>adjusted_speed</strong> = base_speed - (flood_depth × speed_loss_rate)</li>
+          <li><strong>flood_exposure</strong> = flood_depth × edge_length</li>
+          <li><strong>flood_penalty</strong> = vehicle-specific penalty multiplier</li>
+        </ul>
+
+        <h3>Edge Data Requirements</h3>
+        <table>
+          <tr>
+            <th>Field</th>
+            <th>Description</th>
+            <th>Type</th>
+          </tr>
+          <tr>
+            <td>length</td>
+            <td>Edge length in meters</td>
+            <td>float</td>
+          </tr>
+          <tr>
+            <td>road_class</td>
+            <td>Road type (highway, primary, secondary, residential)</td>
+            <td>string</td>
+          </tr>
+          <tr>
+            <td>flood_depth</td>
+            <td>Water depth in meters (0 if no flooding)</td>
+            <td>float</td>
+          </tr>
+        </table>
+
+        <h3>Example Usage</h3>
+        <div class="code-example">
+<span class="keyword">from</span> router <span class="keyword">import</span> compute_route
+<span class="keyword">from</span> car <span class="keyword">import</span> get_vehicle_profile
+
+<span class="comment"># Get vehicle profile</span>
+vehicle = get_vehicle_profile(<span class="string">"suv"</span>)
+
+<span class="comment"># Compute route</span>
+start = (37.7749, -122.4194)  <span class="comment"># lat, lon</span>
+end = (37.7849, -122.4094)
+route = compute_route(graph, start, end, vehicle)
+
+<span class="keyword">if</span> route[<span class="string">"status"</span>] == <span class="string">"success"</span>:
+    <span class="keyword">print</span>(<span class="string">"Route found:"</span>, route[<span class="string">"path"</span>])
+</div>
+      </section>
+
+      <!-- Risk Assessment Section -->
+      <section id="risk">
+        <h2>Road Risk Assessment</h2>
+        <p>The risk assessment module evaluates the safety of roads based on environmental and topographical factors using a weighted scoring system.</p>
+
+        <h3>Risk Scoring Formula</h3>
+        <div class="algorithm-flow">
+          <div class="flow-step">
+            <div class="flow-step-number">1</div>
+            <div><strong>Normalize rain:</strong> rain_normalized = rainfall / 50mm (capped at 1.0)</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">2</div>
+            <div><strong>Calculate slope:</strong> slope = (max_elev - min_elev) / road_length</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">3</div>
+            <div><strong>Compute factors:</strong> flatness, low_elevation_factor</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">4</div>
+            <div><strong>Weighted sum:</strong> risk = 0.55×rain + 0.25×low_elev + 0.20×flatness</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">5</div>
+            <div><strong>Classify:</strong> Map numerical risk to level (low/medium/high/very high)</div>
+          </div>
+        </div>
+
+        <h3>Risk Factors & Weights</h3>
+        <table>
+          <tr>
+            <th>Factor</th>
+            <th>Weight</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td>Rain Intensity</td>
+            <td>55%</td>
+            <td>Most significant factor; normalized from rainfall depth</td>
+          </tr>
+          <tr>
+            <td>Low Elevation</td>
+            <td>25%</td>
+            <td>Roads in low-lying areas accumulate water easier</td>
+          </tr>
+          <tr>
+            <td>Flatness</td>
+            <td>20%</td>
+            <td>Flat roads allow water to pool; steep roads allow drainage</td>
+          </tr>
+        </table>
+
+        <h3>Risk Levels</h3>
+        <table>
+          <tr>
+            <th>Level</th>
+            <th>Risk Score Range</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><strong style="color: #2ca02c;">Low</strong></td>
+            <td>0.0 - 0.2</td>
+            <td>Safe to travel; minimal flooding risk</td>
+          </tr>
+          <tr>
+            <td><strong style="color: #ff9800;">Medium</strong></td>
+            <td>0.2 - 0.45</td>
+            <td>Caution advised; some flooding possible</td>
+          </tr>
+          <tr>
+            <td><strong style="color: #f44336;">High</strong></td>
+            <td>0.45 - 0.7</td>
+            <td>High risk; significant flooding likely</td>
+          </tr>
+          <tr>
+            <td><strong style="color: #8b0000;">Very High</strong></td>
+            <td>0.7 - 1.0</td>
+            <td>Extreme risk; avoid if possible</td>
+          </tr>
+        </table>
+
+        <h3>Example Usage</h3>
+        <div class="code-example">
+<span class="keyword">from</span> roadrisk <span class="keyword">import</span> compute_all_roads, get_safe_roads
+
+roads = [
+    {<span class="string">"id"</span>: 101, <span class="string">"length"</span>: 120.5, <span class="string">"avg_elevation"</span>: 9.8, <span class="string">"min_elev"</span>: 4.2, <span class="string">"max_elev"</span>: 15},
+    {<span class="string">"id"</span>: 102, <span class="string">"length"</span>: 80, <span class="string">"avg_elevation"</span>: 6.5, <span class="string">"min_elev"</span>: 3, <span class="string">"max_elev"</span>: 7},
+]
+
+rain_mm = 6
+
+<span class="comment"># Calculate risk for all roads</span>
+results = compute_all_roads(roads, rain_mm)
+
+<span class="comment"># Get only safe roads (threshold: 0.5)</span>
+safe_roads = get_safe_roads(results, threshold=0.5)
+
+<span class="keyword">for</span> r <span class="keyword">in</span> results:
+    <span class="keyword">print</span>(<span class="string">f"Road {r['road_id']} → Risk: {r['risk']:.2f}, Level: {r['level']}"</span>)
+        </div>
+      </section>
+
+      <!-- Simulation Section -->
+      <section id="simulation">
+        <h2>Traffic Simulation</h2>
+        <p>The simulation module generates realistic traffic scenarios by creating multiple vehicles with random origins, destinations, and types, then computing optimal routes for each.</p>
+
+        <h3>Simulation Process</h3>
+        <div class="algorithm-flow">
+          <div class="flow-step">
+            <div class="flow-step-number">1</div>
+            <div><strong>Vehicle Generation:</strong> Create N vehicles with random types (car, SUV, bike)</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">2</div>
+            <div><strong>Origin/Destination Selection:</strong> Randomly select start and end nodes from network</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">3</div>
+            <div><strong>Routing:</strong> Compute optimal route using vehicle-specific profile</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">4</div>
+            <div><strong>Cost Calculation:</strong> Sum edge weights along the path</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-number">5</div>
+            <div><strong>Result Collection:</strong> Store trip information (path, cost, status)</div>
+          </div>
+        </div>
+
+        <h3>Trip Results</h3>
+        <table>
+          <tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td>vehicle_id</td>
+            <td>int</td>
+            <td>Unique identifier for the vehicle</td>
+          </tr>
+          <tr>
+            <td>vehicle_type</td>
+            <td>string</td>
+            <td>Type of vehicle (car, SUV, bike)</td>
+          </tr>
+          <tr>
+            <td>status</td>
+            <td>string</td>
+            <td>"success" if route found, "stranded" if blocked</td>
+          </tr>
+          <tr>
+            <td>path_coords</td>
+            <td>list</td>
+            <td>List of [lat, lon] coordinates for the route</td>
+          </tr>
+          <tr>
+            <td>total_cost</td>
+            <td>float</td>
+            <td>Sum of weights along path (infinity if stranded)</td>
+          </tr>
+        </table>
+
+        <h3>Key Metrics</h3>
+        <ul class="function-list">
+          <li><strong>Success Rate:</strong> Percentage of vehicles that found a route</li>
+          <li><strong>Average Cost:</strong> Mean total_cost across successful trips</li>
+          <li><strong>Cost Distribution:</strong> Varies by vehicle type and network conditions</li>
+          <li><strong>Stranded Vehicles:</strong> Those blocked by impassable flooding</li>
+        </ul>
+
+        <h3>Example Usage</h3>
+        <div class="code-example">
+<span class="keyword">from</span> simulation <span class="keyword">import</span> simulate_traffic
+<span class="keyword">import</span> networkx <span class="keyword">as</span> nx
+
+<span class="comment"># Assume 'graph' is a NetworkX graph loaded with road data</span>
+all_nodes = list(graph.nodes())
+
+<span class="comment"># Run simulation with 100 vehicles</span>
+results = simulate_traffic(graph, all_nodes, vehicles=100)
+
+<span class="comment"># Analyze results</span>
+successful = [r <span class="keyword">for</span> r <span class="keyword">in</span> results <span class="keyword">if</span> r[<span class="string">"status"</span>] == <span class="string">"success"</span>]
+success_rate = len(successful) / len(results) * 100
+avg_cost = sum(r[<span class="string">"total_cost"</span>] <span class="keyword">for</span> r <span class="keyword">in</span> successful) / len(successful)
+
+<span class="keyword">print</span>(<span class="string">f"Success rate: {success_rate:.1f}%"</span>)
+<span class="keyword">print</span>(<span class="string">f"Average trip cost: {avg_cost:.2f}"</span>)
+        </div>
+
+        <h3>Output Data Structure</h3>
+        <div class="code-example">
+[
+  {
+    <span class="string">"vehicle_id"</span>: 0,
+    <span class="string">"vehicle_type"</span>: <span class="string">"suv"</span>,
+    <span class="string">"status"</span>: <span class="string">"success"</span>,
+    <span class="string">"start_node"</span>: 12345,
+    <span class="string">"end_node"</span>: 67890,
+    <span class="string">"path_coords"</span>: [[37.7749, -122.4194], [37.7755, -122.4200], ...],
+    <span class="string">"total_cost"</span>: 2456.78
+  },
+  ...
+]
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <p>&copy; 2025 TISB - Traffic Intelligence & Safety Routing System</p>
+      <p>A project for intelligent route optimization under adverse weather conditions</p>
+    </footer>
+  </div>
+
+  <script>
+    function showSection(sectionId) {
+      // Hide all sections
+      const sections = document.querySelectorAll('section');
+      sections.forEach(section => section.classList.remove('active'));
+
+      // Show selected section
+      document.getElementById(sectionId).classList.add('active');
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+  </script>
+</body>
+</html>

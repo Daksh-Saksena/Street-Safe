@@ -1,0 +1,8 @@
+osmnx
+networkx
+geopandas
+rasterio
+shapely
+numpy
+pyproj
+requests
