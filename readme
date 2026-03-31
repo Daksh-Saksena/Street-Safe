@@ -1,98 +1,56 @@
-# StreetSafe
-
+StreetSafe:
 This codebase is split into two main parts:
+1. A Raspberry Pi 5 control system that is designed to run on actual hardware
+2. A simulation (for testing and demoing) and dashboard system that runs in the browser and backend
 
-1. A **Raspberry Pi control system** that is designed to run on actual hardware
-2. A **simulation and dashboard system** that runs in the browser and backend
-
-Both parts implement the same core idea: an autonomous system that moves toward a target while continuously avoiding obstacles and adapting to its environment.
-
----
-
-## 1. Raspberry Pi (real-world system)
-
-The `pi/` module contains the code intended to run on a Raspberry Pi connected to a drone.
-
+Both parts implement the same core idea: an autonomous system that moves toward a goal or keep patrol while continuously avoiding obstacles and adapting to its environment.
+1. Raspberry Pi (real-world system)
+The pi module contains the code intended to run on a Raspberry Pi connected to a drone.
 This part of the code:
-
 * Connects to a flight controller using MAVLink
 * Reads data from sensors such as LiDAR and distance sensors
 * Processes that data to detect obstacles and measure distances
 * Runs a control loop that decides how the drone should move
-* Sends movement commands (velocity or waypoints) back to the flight controller
+* Sends movement commandsback to the FC
 
 In each cycle, the system:
-
 1. Reads sensor data
 2. Determines if the path ahead is clear
 3. Adjusts direction if obstacles are detected
 4. Continues moving toward the goal
-
 This is the execution layer that would control a real drone.
 
----
-
-## 2. Simulator + Dashboard (testing system)
-
-The `backend/` and `frontend/` modules together act as a simulation environment.
-
-This part of the code:
-
+2. Simulator + Dashboard (testing system)
+The backend and frontend modules together act as a simulation environment.
+This 
 * Simulates the drone’s position and movement on a map
 * Allows obstacles and walls to be placed interactively
 * Runs the same navigation logic used on the Pi
 * Displays everything visually in real time
-
-The backend handles:
-
+It handles
 * Routing between locations
 * Flood-aware path calculation
 * System state updates
 
 The frontend:
-
 * Displays the map (Leaflet)
 * Shows the drone, its path, and obstacles
 * Updates continuously as the system runs
 
----
-
-## Key idea
-
-Both parts share the same behavior:
-
-* Move toward a goal
+Key ideas:--
+* Move toward a goal or post etc.
 * Detect obstacles
 * Adjust direction dynamically
 * Continue until the destination is reached
+The simulator is used for testing and visualisaion (looks v cool) , while the Raspberry Pi code is designed to run the same logic on real hardware or atleast i think it will work .
 
-The simulator is used to test and visualize this behavior, while the Raspberry Pi code is designed to run the same logic on real hardware.
-
----
-
-## Running the system
-
-To run the full simulation locally:
-
-```bash
-cd ~/Desktop/streetsafe
+Running the system
+To run: 
+In bash
+cd ........./streetsafe
 ./run_demo.sh
-```
 
 Then open:
-
-```
 http://localhost:9000
-```
 
-This starts the backend and launches the live dashboard where you can see the drone moving, place obstacles, and test navigation.
-
----
-
-## Summary
-
-* The **Pi code** controls a real drone using sensor input and MAVLink
-* The **simulator** shows the same system working in a controlled environment
-* Both use the same navigation approach: continuous movement with real-time obstacle avoidance
-
-The system can be tested visually and then deployed onto actual hardware without changing the core logic.
+This starts the backend and launches dashboard where you can see- drone moving, place obstacles, and test navigation.
