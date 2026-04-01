@@ -62,7 +62,7 @@ where we live-> bangalore gets heavy rains all the time (even in the summer) and
 
 ## 3D MODEL
 ![3D model](3D-model.jpeg)
-
+We couldnt export the 3D model with the electronics
 ## WIRING DIAGRAM
 ![Wiring](wiring.png)
 
