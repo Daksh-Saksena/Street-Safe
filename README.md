@@ -1,4 +1,4 @@
-### StreetSafe:
+# StreetSafe:
 Disaster-response system designed to help people navigate safely during heavy rain and flooding. It improves on traditional GPS by using real-time data to guide users away from unsafe roads. Also the MAIN thing- An autonomous drone that can monitor conditions on the ground, update routes, and assist in search and rescue when situations become bad
 
 This codebase is split into two main parts:
