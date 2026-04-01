@@ -1,61 +1,46 @@
 import math
 import time
-import logging
-from typing import Any, Dict, Optional, Tuple
 from mavlink_interface import MAVLinkInterface
-logger = logging.getLogger(__name__)
-CRUISE_SPEED_MS: float = 3.0     
-AVOIDANCE_SPEED_MS: float = 1.5  
-DEFAULT_ALTITUDE_M: float = 10.0 
-COMMAND_INTERVAL_S: float = 0.2
-def heading_to_ned_velocity(heading_deg: float, speed_ms: float) -> Tuple[float, float]:
+CRUISE = 3.0
+AVOID_SPD = 1.5
+DEFAULT_ALT = 10.0
+CMD_GAP = 0.2
+def hdg_to_vel(heading_deg, speed):
     rad = math.radians(heading_deg)
-    vx = speed_ms * math.cos(rad)  
-    vy = speed_ms * math.sin(rad)  
-    return vx, vy
+    return speed * math.cos(rad), speed * math.sin(rad)
 class NavigationController:
-    def __init__(self, mav: MAVLinkInterface, cruise_speed: float = CRUISE_SPEED_MS) -> None:
+    def __init__(self, mav, cruise_speed=CRUISE):
         self.mav = mav
         self.cruise_speed = cruise_speed
-        self._last_command_time: float = 0.0
-    def execute_decision(self, decision: Dict[str, Any]) -> bool:
+        self._t_cmd = 0.0
+    def execute_decision(self, decision):
         action = decision.get("action", "HOVER")
-        safe_heading = decision.get("safe_heading")
+        hdg = decision.get("safe_heading")
         if action == "NAVIGATE":
-            return self._fly_heading(safe_heading, self.cruise_speed)
+            return self._fly(hdg, self.cruise_speed)
         elif action == "AVOID":
-            return self._fly_heading(safe_heading, AVOIDANCE_SPEED_MS)
+            return self._fly(hdg, AVOID_SPD)
         elif action == "HOVER":
             return self._hover()
         elif action == "STOP":
-            return self._emergency_stop()
-        else:
-            logger.warning(f"execute_decision: unknown action '{action}'")
-            return False
-    def go_to_waypoint(self, lat: float, lon: float, alt: float = DEFAULT_ALTITUDE_M) -> bool:
-        logger.info(f"Waypoint: ({lat:.6f}, {lon:.6f}) alt={alt} m")
+            return self._estop()
+        return False
+    def go_to_waypoint(self, lat, lon, alt=DEFAULT_ALT):
         return self.mav.send_waypoint(lat, lon, alt)
-    def return_to_home(self, home_lat: float, home_lon: float) -> bool:
-        logger.info("Return-to-home initiated")
-        return self.go_to_waypoint(home_lat, home_lon, DEFAULT_ALTITUDE_M)
-    def _fly_heading(self, heading_deg: Optional[float], speed_ms: float) -> bool:
-        if heading_deg is None:
+    def return_to_home(self, home_lat, home_lon):
+        return self.go_to_waypoint(home_lat, home_lon, DEFAULT_ALT)
+    def _fly(self, hdg, speed):
+        if hdg is None:
             return self._hover()
         now = time.time()
-        if now - self._last_command_time < COMMAND_INTERVAL_S:
+        if now - self._t_cmd < CMD_GAP:
             return True
-        vx, vy = heading_to_ned_velocity(heading_deg, speed_ms)
-        success = self.mav.set_velocity(vx, vy, 0.0)  
-        if success:
-            self._last_command_time = now
-            logger.debug(
-                f"Fly heading={heading_deg:.1f}° speed={speed_ms} m/s "
-                f"(vx={vx:.2f}, vy={vy:.2f})"
-            )
-        return success
-    def _hover(self) -> bool:
-        logger.info("Holding hover")
+        vx, vy = hdg_to_vel(hdg, speed)
+        ok = self.mav.set_velocity(vx, vy, 0.0)
+        if ok:
+            self._t_cmd = now
+        return ok
+    def _hover(self):
         return self.mav.set_velocity(0.0, 0.0, 0.0)
-    def _emergency_stop(self) -> bool:
-        logger.warning("EMERGENCY STOP — zeroing all velocity")
+    def _estop(self):
         return self.mav.set_velocity(0.0, 0.0, 0.0)

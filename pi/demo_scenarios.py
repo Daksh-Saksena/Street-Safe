@@ -7,7 +7,7 @@ from lidar_processing import process_scan, process_tf_luna
 from decision_engine import DecisionEngine
 from navigation import NavigationController
 import requests
-def _c(code: str, text: str) -> str:
+def _c(code, text):
     codes = {"bold": "\033[1m", "green": "\033[92m", "yellow": "\033[93m",
              "red": "\033[91m", "cyan": "\033[96m", "reset": "\033[0m"}
     return f"{codes.get(code,'')}{text}{codes['reset']}"
@@ -20,7 +20,7 @@ nav     = NavigationController(mav)
 mav.connect()
 mav.set_guided_mode()
 sensors.initialize()
-def run_scenario(name: str, label: str, description: str, iterations: int = 8) -> None:
+def run_scenario(name, label, description, iterations=8):
     sensors.set_scenario(name)
     print("\n" + "═" * 62)
     print(_c("bold", f"  SCENARIO: {label}"))
@@ -67,8 +67,7 @@ def run_scenario(name: str, label: str, description: str, iterations: int = 8) -
         except Exception:
             pass
         time.sleep(0.6)
-def demo_route_query() -> None:
-    """Show a backend route request — flood model reroutes around the hazard zone."""
+def demo_route_query():
     print("\n" + "═" * 62)
     print(_c("bold", "  SCENARIO 4 — Backend Route Query (flood-aware routing)"))
     print("  Querying API: shelter_a → hospital")
@@ -94,7 +93,7 @@ def demo_route_query() -> None:
             print(f"  Backend returned {resp.status_code} — is the server running?")
     except Exception as exc:
         print(f"  Backend unreachable ({exc}) — start it with: cd backend && python server.py")
-def main() -> None:
+def main():
     print(_c("bold", "\n  StreetSafe — Hackathon Demo  (MOCK MODE)\n"))
     print("  This script walks through 4 scenarios automatically.")
     print("  Press Enter between scenarios to advance.  Ctrl-C to quit.\n")

@@ -1,4 +1,6 @@
-StreetSafe:
+### StreetSafe:
+Disaster-response system designed to help people navigate safely during heavy rain and flooding. It improves on traditional GPS by using real-time data to guide users away from unsafe roads. Also the MAIN thing- An autonomous drone that can monitor conditions on the ground, update routes, and assist in search and rescue when situations become bad
+
 This codebase is split into two main parts:
 1. A Raspberry Pi 5 control system that is designed to run on actual hardware -> WARNING! ! ! -> WE DONT HAVE THE PHSYICAL COMPONENTS YET SO THIS IS LIKE A PLACEHOLDER!
 2. A simulation (for testing and demoing) and dashboard system that runs in the browser and backend
@@ -44,7 +46,7 @@ Key ideas:--
 * Continue until the destination is reached
 The simulator is used for testing and visualisaion (looks v cool) , while the Raspberry Pi code is designed to run the same logic on real hardware or atleast i think it will work .
 
-Running the system
+## How to use:
 To run: 
 In bash
 cd ........./streetsafe
@@ -54,3 +56,29 @@ Then open:
 http://localhost:9000
 
 This starts the backend and launches dashboard where you can see- drone moving, place obstacles, and test navigation.
+
+## Why did we do this? 
+where we live-> bangalore gets heavy rains all the time (even in the summer) and its really bad traffic on top of the already infamous bangalore traffic but this can also get quite deadly, so we started this originally as a hackathon project (just some code which is now sitting in Old-website) but then we realised that this could actually be a fun and usefull project and here we are!
+
+## 3D MODEL
+![3D model](3D-model.jpeg)
+
+## WIRING DIAGRAM
+![Wiring](wiring.png)
+
+## Bill of Materials (BOM)
+
+| Item | Specific Part | Unit Price (INR) | Quantity | Total Price (INR) | URL | Running Total |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Companion computer | Raspberry Pi 5 (4GB) | 0 | 1 | 0 | Nil | 0 |
+| Primary LiDAR | LDROBOT D500 | 7,520 | 1 | 7,520 | [Link](https://robu.in/product/ldrobot-dtof-lidar-stl-19p-360-omni-directional-lidar/) | 7,520 |
+| FC | Botwing F405 | 3,999 | 1 | 3,999 | [Link](https://robu.in/product/botwing-f405-flight-controller-fully-solderless/) | 11,519 |
+| ESC | BotDrive 8-bit 4-in-1 ESC 50 Amps | 3,599 | 1 | 3,599 | [Link](https://robu.in/product/botdrive-8-bit-4-in-1-esc-50-a/) | 15,118 |
+| Motors | Emax ECOII 2807 1300KV | 1,700 | 4 | 6,800 | [Link](https://hitechxyz.in/products/emax-ecoii-2807-1300kv-brushless-motor) | 21,918 |
+| Propeller | Gemfan 7040 | 200 | 4 | 800 | [Link](https://hitechxyz.in/products/pro-range-propellers-7040-flash-pc-3-blade-propellers-2cw-2ccw-black) | 22,718 |
+| Battery | 6S 4500mAh Li-ion | 4,100 | 1 | 4,100 | [Link](https://robu.in/product/pro-range-inr-21700-p45b-22-2v-4500mah-6s1p-35a-45a-discharge-li-ion-drone-battery-pack/) | 26,818 |
+| BEC | 13S 5V BEC For Quad | 741 | 1 | 741 | [Link](https://www.flyrobo.in/yrrc-2-13s-5v-5a-bec-module?tracking=ads) | 27,559 |
+| GPS | HGLRC M100 Pro | 1,900 | 1 | 1,900 | [Link](https://robu.in/product/hglrc-m100-pro-gps/) | 29,459 |
+| Frame | 3D printed PETG-CF | 0 | 1 | 0 | Nil | 29,459 |
+| Radio | FS i6 | 0 | 1 | 0 | Already have | 29,459 |
+| **Total** | | | | | | **29,459** |

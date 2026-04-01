@@ -3,7 +3,6 @@ import logging
 import signal
 import sys
 import time
-from typing import Optional
 import requests
 sys.path.insert(0, "../shared")
 from config import (
@@ -13,8 +12,6 @@ from config import (
     LIDAR_D500_PORT,
     TF_LUNA_PORT,
     LOOP_HZ,
-    HOME_LAT,
-    HOME_LON,
     TARGET_HEADING,
     DEFAULT_ALTITUDE_M,
     BACKEND_URL,
@@ -22,27 +19,24 @@ from config import (
 if MOCK_MODE:
     from mock_hardware import MockMAVLinkInterface as MAVLinkInterface
     from mock_hardware import MockSensorManager as SensorManager
-    import mock_hardware as _mock_hw   
+    import mock_hardware as _mock_hw
 else:
     from mavlink_interface import MAVLinkInterface
     from sensor_manager import SensorManager
-    _mock_hw = None  
+    _mock_hw = None
 from lidar_processing import process_scan, process_tf_luna
 from decision_engine import DecisionEngine
 from navigation import NavigationController
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler("/tmp/streetsafe.log"),
-    ],
+    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("/tmp/streetsafe.log")],
 )
 logger = logging.getLogger("main")
-_running: bool = True
-def _handle_signal(sig: int, _frame: object) -> None:
+_running = True
+def _handle_signal(sig, _frame):
     global _running
-    logger.info(f"Shutdown signal received — stopping loop")
+    logger.info("Shutdown signal received — stopping loop")
     _running = False
 _COLORS = {
     "green":  "\033[92m",
@@ -52,7 +46,7 @@ _COLORS = {
     "bold":   "\033[1m",
     "reset":  "\033[0m",
 }
-def _c(color: str, text: str) -> str:
+def _c(color, text):
     return f"{_COLORS.get(color, '')}{text}{_COLORS['reset']}"
 STATE_COLORS = {
     "NAVIGATING": "green",
@@ -60,28 +54,26 @@ STATE_COLORS = {
     "HOVERING":   "cyan",
     "EMERGENCY":  "red",
 }
-def _print_status(decision: dict, gps: Optional[dict], altitude: Optional[dict]) -> None:
+def _print_status(decision, gps, alt):
     state = decision["state"]
     color = STATE_COLORS.get(state, "reset")
-    heading = decision["safe_heading"]
-    heading_str = f"{heading:.0f}°" if heading is not None else "N/A"
-    obstacles = decision["obstacle_count"]
-    terrain = decision["terrain_class"]
+    hdg = decision["safe_heading"]
+    hdg_str = f"{hdg:.0f}°" if hdg is not None else "N/A"
     lat = gps["lat"] if gps else "?"
     lon = gps["lon"] if gps else "?"
-    alt = altitude["alt_relative"] if altitude else "?"
+    a = alt["alt_relative"] if alt else "?"
     print(
         f"  {_c(color, f'[{state:11s}]')}  "
-        f"Heading: {_c('bold', heading_str):6s}  "
-        f"Obstacles: {_c('red' if obstacles else 'green', str(obstacles))}  "
-        f"Terrain: {terrain:10s}  "
-        f"GPS: ({lat}, {lon})  Alt: {alt} m"
+        f"Heading: {_c('bold', hdg_str):6s}  "
+        f"Obstacles: {_c('red' if decision['obstacle_count'] else 'green', str(decision['obstacle_count']))}  "
+        f"Terrain: {decision['terrain_class']:10s}  "
+        f"GPS: ({lat}, {lon})  Alt: {a} m"
     )
     for alert in decision.get("alerts", []):
-        level = alert["level"].upper()
-        icon = "🚨" if level == "CRITICAL" else "⚠️ " if level == "WARNING" else "ℹ️ "
-        print(f"       {icon}  {_c('red' if level == 'CRITICAL' else 'yellow', alert['message'])}")
-def _announce_action(action: str, safe_heading: Optional[float], target_heading: float) -> None:
+        lv = alert["level"].upper()
+        icon = "🚨" if lv == "CRITICAL" else "⚠️ " if lv == "WARNING" else "ℹ️ "
+        print(f"       {icon}  {_c('red' if lv == 'CRITICAL' else 'yellow', alert['message'])}")
+def _announce_action(action, safe_heading, target_heading):
     if action == "NAVIGATE":
         print(f"  ✈  Flying toward heading {target_heading:.0f}° — path is clear.")
     elif action == "AVOID":
@@ -90,76 +82,68 @@ def _announce_action(action: str, safe_heading: Optional[float], target_heading:
         print(f"  ⏸  All directions blocked — holding position.")
     elif action == "STOP":
         print(f"  🛑  EMERGENCY STOP — object too close!")
-_last_scenario_poll: float = 0.0   
-_last_speed_poll: float = 0.0
-_last_location_poll: float = 0.0
-def _push_to_backend(
-    decision: dict,
-    processed_scan: dict,
-    gps: Optional[dict],
-    altitude: Optional[dict],
-) -> None:
-    distance_map_serialized = {
-        str(k): v for k, v in processed_scan.get("distance_map", {}).items()
-    }
+_t_scene = 0.0
+_t_speed = 0.0
+_t_loc = 0.0
+def _push_to_backend(decision, scan, gps, alt):
+    dm = {str(k): v for k, v in scan.get("distance_map", {}).items()}
     payload = {
         "state":          decision["state"],
-        "lat":            gps["lat"]  if gps  else None,
-        "lon":            gps["lon"]  if gps  else None,
-        "altitude_m":     altitude["alt_relative"] if altitude else None,
+        "lat":            gps["lat"] if gps else None,
+        "lon":            gps["lon"] if gps else None,
+        "altitude_m":     alt["alt_relative"] if alt else None,
         "heading_deg":    decision.get("safe_heading"),
-        "groundspeed_ms": altitude["groundspeed"] if altitude else None,
+        "groundspeed_ms": alt["groundspeed"] if alt else None,
         "action":         decision.get("action"),
         "alerts":         decision.get("alerts", []),
         "obstacles":      decision.get("obstacles", []),
-        "terrain_class":  processed_scan.get("terrain_class", "unknown"),
-        "distance_map":   distance_map_serialized,
+        "terrain_class":  scan.get("terrain_class", "unknown"),
+        "distance_map":   dm,
     }
     try:
         requests.post(f"{BACKEND_URL}/status/update", json=payload, timeout=0.5)
     except Exception:
-        pass   
-def _poll_scenario(sensors: object) -> None:
-    global _last_scenario_poll
+        pass
+def _poll_scenario(sensors):
+    global _t_scene
     if not MOCK_MODE:
         return
     now = time.time()
-    if now - _last_scenario_poll < 1.0:
+    if now - _t_scene < 1.0:
         return
-    _last_scenario_poll = now
+    _t_scene = now
     try:
         resp = requests.get(f"{BACKEND_URL}/scenario", timeout=0.3)
         if resp.status_code == 200:
-            name = resp.json().get("scenario", "clear")
-            sensors.set_scenario(name)  
+            sensors.set_scenario(resp.json().get("scenario", "clear"))
     except Exception:
         pass
-def _poll_speed(nav: object) -> None:
-    global _last_speed_poll
+def _poll_speed(nav):
+    global _t_speed
     if not MOCK_MODE:
         return
     now = time.time()
-    if now - _last_speed_poll < 1.0:
+    if now - _t_speed < 1.0:
         return
-    _last_speed_poll = now
+    _t_speed = now
     try:
         resp = requests.get(f"{BACKEND_URL}/speed", timeout=0.3)
         if resp.status_code == 200:
-            speed = float(resp.json().get("speed", 2.0))
-            if abs(nav.cruise_speed - speed) > 0.05:
-                nav.cruise_speed = speed
+            spd = float(resp.json().get("speed", 2.0))
+            if abs(nav.cruise_speed - spd) > 0.05:
+                nav.cruise_speed = spd
                 if _mock_hw:
-                    _mock_hw.set_speed(speed)
+                    _mock_hw.set_speed(spd)
     except Exception:
         pass
-def _poll_location() -> None:
-    global _last_location_poll
+def _poll_location():
+    global _t_loc
     if not MOCK_MODE:
         return
     now = time.time()
-    if now - _last_location_poll < 1.0:
+    if now - _t_loc < 1.0:
         return
-    _last_location_poll = now
+    _t_loc = now
     try:
         resp = requests.get(f"{BACKEND_URL}/location", timeout=0.3)
         if resp.status_code == 200:
@@ -168,14 +152,13 @@ def _poll_location() -> None:
                 _mock_hw.set_position(loc["lat"], loc["lon"])
     except Exception:
         pass
-def main() -> None:
+def main():
     global _running
-    parser = argparse.ArgumentParser(description="StreetSafe drone control loop")
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "--scenario",
         choices=["clear", "obstacle", "emergency"],
         default="clear",
-        help="Starting obstacle scenario (mock mode only)",
     )
     args = parser.parse_args()
     signal.signal(signal.SIGINT, _handle_signal)
@@ -189,20 +172,17 @@ def main() -> None:
         logger.critical("Could not connect to flight controller — aborting")
         sys.exit(1)
     mav.set_guided_mode()
-    sensors = SensorManager() if MOCK_MODE else SensorManager(
-        d500_port=LIDAR_D500_PORT, tf_luna_port=TF_LUNA_PORT
-    )
-    sensor_status = sensors.initialize()
-    logger.info(f"Sensor status: {sensor_status}")
+    sensors = SensorManager() if MOCK_MODE else SensorManager(d500_port=LIDAR_D500_PORT, tf_luna_port=TF_LUNA_PORT)
+    logger.info(f"Sensor status: {sensors.initialize()}")
     if MOCK_MODE:
         sensors.set_scenario(args.scenario)
     engine = DecisionEngine(target_heading=TARGET_HEADING)
     nav = NavigationController(mav)
-    loop_interval = 1.0 / LOOP_HZ
+    interval = 1.0 / LOOP_HZ
     iteration = 0
     print(f"  Control loop: {LOOP_HZ} Hz   Target heading: {TARGET_HEADING}°\n")
     while _running:
-        loop_start = time.time()
+        t0 = time.time()
         iteration += 1
         try:
             mav.update_heartbeat()
@@ -211,36 +191,35 @@ def main() -> None:
                 time.sleep(1.0)
                 continue
             snap = sensors.read_all()
-            raw_scan = snap.get("lidar_360")
-            raw_tf   = snap.get("lidar_front")
-            processed_scan = (
-                process_scan(raw_scan)
-                if raw_scan
+            lidar = snap.get("lidar_360")
+            tf_raw = snap.get("lidar_front")
+            scan = (
+                process_scan(lidar)
+                if lidar
                 else {"obstacles": [], "distance_map": {}, "terrain_class": "unknown"}
             )
-            tf_result = process_tf_luna(raw_tf)
-            gps_data      = mav.get_gps()
-            altitude_data = mav.get_altitude()
+            tf = process_tf_luna(tf_raw)
+            gps = mav.get_gps()
+            alt = mav.get_altitude()
             decision = engine.evaluate(
-                processed_scan=processed_scan,
-                tf_luna_data=tf_result,
-                gps_data=gps_data,
-                altitude_data=altitude_data,
+                processed_scan=scan,
+                tf_luna_data=tf,
+                gps_data=gps,
+                altitude_data=alt,
             )
             print(f"\n── Iteration {iteration:04d} ──────────────────────────────────────")
-            _print_status(decision, gps_data, altitude_data)
+            _print_status(decision, gps, alt)
             _announce_action(decision["action"], decision["safe_heading"], decision["target_heading"])
             nav.execute_decision(decision)
             _poll_scenario(sensors)
             _poll_speed(nav)
             _poll_location()
-            _push_to_backend(decision, processed_scan, gps_data, altitude_data)
+            _push_to_backend(decision, scan, gps, alt)
         except Exception:
             logger.exception("Unhandled error in control loop — continuing")
-        elapsed = time.time() - loop_start
-        sleep_time = loop_interval - elapsed
-        if sleep_time > 0:
-            time.sleep(sleep_time)
+        elapsed = time.time() - t0
+        if interval - elapsed > 0:
+            time.sleep(interval - elapsed)
     print("\n" + _c("bold", "Shutting down StreetSafe..."))
     nav._hover()
     sensors.shutdown()
