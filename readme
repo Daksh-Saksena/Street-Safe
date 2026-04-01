@@ -1,6 +1,6 @@
 StreetSafe:
 This codebase is split into two main parts:
-1. A Raspberry Pi 5 control system that is designed to run on actual hardware
+1. A Raspberry Pi 5 control system that is designed to run on actual hardware -> WARNING! ! ! -> WE DONT HAVE THE PHSYICAL COMPONENTS YET SO THIS IS LIKE A PLACEHOLDER!
 2. A simulation (for testing and demoing) and dashboard system that runs in the browser and backend
 
 Both parts implement the same core idea: an autonomous system that moves toward a goal or keep patrol while continuously avoiding obstacles and adapting to its environment.
