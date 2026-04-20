@@ -1,7 +1,8 @@
+import os
 import sys
 import time
-sys.path.insert(0, "../shared")
-from config import BACKEND_URL
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from shared.config import BACKEND_URL
 from mock_hardware import MockMAVLinkInterface, MockSensorManager
 from lidar_processing import process_scan, process_tf_luna
 from decision_engine import DecisionEngine

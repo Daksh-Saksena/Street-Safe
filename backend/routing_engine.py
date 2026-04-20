@@ -1,5 +1,9 @@
+import os
+import sys
 import math
 import networkx as nx
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from shared.utils import haversine
 from flood_model import FloodModel
 SAFETY_MULTIPLIER = 10.0
 BLOCKED_WEIGHT = float("inf")
@@ -83,14 +87,6 @@ class RoutingEngine:
     def _edge_weight(self, from_id, to_id):
         ca = self._coords[from_id]
         cb = self._coords[to_id]
-        d = self._haversine(*ca, *cb)
+        d = haversine(*ca, *cb)
         risk = self.flood_model.get_edge_risk(ca, cb, node_a_id=from_id, node_b_id=to_id)
         return round(d * (1.0 + SAFETY_MULTIPLIER * risk), 2)
-    @staticmethod
-    def _haversine(lat1, lon1, lat2, lon2):
-        R = 6_371_000
-        p1, p2 = math.radians(lat1), math.radians(lat2)
-        dp = math.radians(lat2 - lat1)
-        dl = math.radians(lon2 - lon1)
-        a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
-        return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1 - a))

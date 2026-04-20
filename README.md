@@ -61,10 +61,11 @@ This starts the backend and launches dashboard where you can see- drone moving, 
 where we live-> bangalore gets heavy rains all the time (even in the summer) and its really bad traffic on top of the already infamous bangalore traffic but this can also get quite deadly, so we started this originally as a hackathon project (just some code which is now sitting in Old-website) but then we realised that this could actually be a fun and usefull project and here we are!
 
 ## 3D MODEL
-![3D model](3D-model.jpeg)
+![3D model](docs/3D-model.jpeg)
 We couldnt export the 3D model with the electronics
+
 ## WIRING DIAGRAM
-![Wiring](wiring.png)
+![Wiring](docs/wiring.png)
 
 ## Bill of Materials (BOM)
 

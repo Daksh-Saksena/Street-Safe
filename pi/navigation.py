@@ -1,6 +1,5 @@
 import math
 import time
-from mavlink_interface import MAVLinkInterface
 CRUISE = 3.0
 AVOID_SPD = 1.5
 DEFAULT_ALT = 10.0

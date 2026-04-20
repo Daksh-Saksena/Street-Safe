@@ -1,11 +1,12 @@
 import argparse
 import logging
+import os
 import signal
 import sys
 import time
 import requests
-sys.path.insert(0, "../shared")
-from config import (
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from shared.config import (
     MOCK_MODE,
     MAVLINK_CONNECTION,
     MAVLINK_BAUD,

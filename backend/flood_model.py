@@ -1,4 +1,8 @@
 import math
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from shared.utils import haversine
 RISK_NONE = 0.0
 RISK_LOW = 0.2
 RISK_MEDIUM = 0.5
@@ -16,7 +20,7 @@ class FloodModel:
     def get_point_risk(self, lat, lon):
         risk = RISK_NONE
         for zl, zo, zr, zk in self._zones:
-            d = self._haversine(lat, lon, zl, zo)
+            d = haversine(lat, lon, zl, zo)
             if d > zr:
                 continue
             eff = zk * (1.0 - (d / zr) * 0.3)
@@ -42,11 +46,3 @@ class FloodModel:
                 for lat, lon, r, risk in self._zones
             ],
         }
-    @staticmethod
-    def _haversine(lat1, lon1, lat2, lon2):
-        R = 6_371_000
-        p1, p2 = math.radians(lat1), math.radians(lat2)
-        dp = math.radians(lat2 - lat1)
-        dl = math.radians(lon2 - lon1)
-        a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
-        return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
