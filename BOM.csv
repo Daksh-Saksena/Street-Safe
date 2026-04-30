@@ -1,7 +1,7 @@
 Item,Specific Part,Unit Price (inr),Quantity,Total price (inr),URL,Running total
 Companion computer,Raspberry Pi 5 (4GB),0,1,0,Nil,0
 Primary LiDAR,LDROBOT D500,7520,1,7520,https://robu.in/product/ldrobot-dtof-lidar-stl-19p-360-omni-directional-lidar/,7520
-FC,Botwing F405,3999,1,3999,https://robu.in/product/botwing-f405-flight-controller-fully-solderless/,11519
+FC,Custom PCB,1700,1,1700,Nil,11519
 ESC,BotDrive 8-bit 4-in-1 ESC 50 Amps,3599,1,3599,https://robu.in/product/botdrive-8-bit-4-in-1-esc-50-a/,15118
 Motors,Emax ECOII 2807 1300KV,1700,4,6800,https://hitechxyz.in/products/emax-ecoii-2807-1300kv-brushless-motor,21918
 propellor,Gemfan 7040,200,4,800,https://hitechxyz.in/products/pro-range-propellers-7040-flash-pc-3-blade-propellers-2cw-2ccw-black,22718
