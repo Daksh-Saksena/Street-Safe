@@ -69,17 +69,4 @@ We couldnt export the 3D model with the electronics
 
 ## Bill of Materials (BOM)
 
-| Item | Specific Part | Unit Price (INR) | Quantity | Total Price (INR) | URL | Running Total |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Companion computer | Raspberry Pi 5 (4GB) | 0 | 1 | 0 | Nil | 0 |
-| Primary LiDAR | LDROBOT D500 | 7,520 | 1 | 7,520 | [Link](https://robu.in/product/ldrobot-dtof-lidar-stl-19p-360-omni-directional-lidar/) | 7,520 |
-| FC | Botwing F405 | 3,999 | 1 | 3,999 | [Link](https://robu.in/product/botwing-f405-flight-controller-fully-solderless/) | 11,519 |
-| ESC | BotDrive 8-bit 4-in-1 ESC 50 Amps | 3,599 | 1 | 3,599 | [Link](https://robu.in/product/botdrive-8-bit-4-in-1-esc-50-a/) | 15,118 |
-| Motors | Emax ECOII 2807 1300KV | 1,700 | 4 | 6,800 | [Link](https://hitechxyz.in/products/emax-ecoii-2807-1300kv-brushless-motor) | 21,918 |
-| Propeller | Gemfan 7040 | 200 | 4 | 800 | [Link](https://hitechxyz.in/products/pro-range-propellers-7040-flash-pc-3-blade-propellers-2cw-2ccw-black) | 22,718 |
-| Battery | 6S 4500mAh Li-ion | 4,100 | 1 | 4,100 | [Link](https://robu.in/product/pro-range-inr-21700-p45b-22-2v-4500mah-6s1p-35a-45a-discharge-li-ion-drone-battery-pack/) | 26,818 |
-| BEC | 13S 5V BEC For Quad | 741 | 1 | 741 | [Link](https://www.flyrobo.in/yrrc-2-13s-5v-5a-bec-module?tracking=ads) | 27,559 |
-| GPS | HGLRC M100 Pro | 1,900 | 1 | 1,900 | [Link](https://robu.in/product/hglrc-m100-pro-gps/) | 29,459 |
-| Frame | 3D printed PETG-CF | 0 | 1 | 0 | Nil | 29,459 |
-| Radio | FS i6 | 0 | 1 | 0 | Already have | 29,459 |
-| **Total** | | | | | | **29,459** |
+Full BOM: [BOM.csv](BOM.csv) — Total: ₹29,459
