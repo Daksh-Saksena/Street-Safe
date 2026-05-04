@@ -109,13 +109,11 @@ ___
 
 ___
 
-## PCB 1 - FLIGHT CONTROLLER
-<img src="docs/FC-PCB.png" alt="FC" width="400">
-
-
-## PCB 2 - PAYLOAD PCB
-![PAYLOAD PCB](docs/Payload-PCB.jpeg)
-
+## PCB 1 and 2: FC and PAYLOAD
+<p align="center">
+  <img src="docs/FC-PCB.png" alt="FC" width="250">
+  <img src="docs/Payload-PCB.jpeg" alt="PAYLOAD PCB" width="250">
+</p>
 ___
 
 ## Bill of Materials
