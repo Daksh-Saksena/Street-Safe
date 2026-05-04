@@ -6,7 +6,7 @@ So there are 2 parts of our Project, the physical design and drone , and the fro
 ___
 
 # DRONE:
-We designed the entire custom model including electronics (and 2 custom PCBS) in fusion and made a wiring diagram including all the components and the wiring.
+We designed the entire custom model including electronics (and 2 custom PCBS) in fusion and kicad, and made a wiring diagram including all the components and the wiring.
 ## What differentiates us?
 Due to our goal of a helpful autonomous weatherproof drone, we had to add multiple unique differentiating parts-
 
