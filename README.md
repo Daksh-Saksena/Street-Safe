@@ -85,12 +85,17 @@ where we live-> bangalore gets heavy rains all the time (even in the summer) and
 ___
 
 ## 3D MODEL
-![3D model](docs/3D-model.jpeg)
+![3D model](docs/3D-model.png)
 
 ___
 
 ## WIRING DIAGRAM
 ![Wiring](docs/Wiring-Diagram.png)
+
+___
+
+## 3D MODEL OF ELECTRONICS
+![Electronic](docs/Electronics.png)
 
 ___
 
