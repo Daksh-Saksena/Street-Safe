@@ -105,7 +105,7 @@ ___
 ___
 
 ## PAYLOAD 2 - Dropping
-![Dropping payload](docs/Droppng-Payload.png)
+![Dropping payload](docs/Droppng-Paylod.png)
 
 ___
 
