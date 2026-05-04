@@ -109,11 +109,9 @@ ___
 
 ___
 
-
 ## PCB 1 - FLIGHT CONTROLLER
-![FC](docs/FC-PCB.png)
+<img src="docs/FC-PCB.png" alt="FC" width="400">
 
-___
 
 ## PCB 2 - PAYLOAD PCB
 ![PAYLOAD PCB](docs/Payload-PCB.jpeg)
