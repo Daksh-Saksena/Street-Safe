@@ -116,7 +116,7 @@ ___
 ___
 
 ## PCB 2 - PAYLOAD PCB
-![PAYLOAD PACB](docs/PAYLOAD-PCB.jpeg)
+![PAYLOAD PCB](docs/Payload-PCB.jpeg)
 
 ___
 
