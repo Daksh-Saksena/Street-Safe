@@ -9,9 +9,7 @@ We designed the entire custom model including electronics in fusion and made a w
 Due to our goal of a helpful autonomous weatherproof drone, we had to add multiple unique differntiating parts-
 
 1.weatherproofing and waterproofing while maintaining airflow to cool components
-
 2.Constant Lidar sensing on top of the drone to autonomously navigate
-
 3.Payload mechanisms which can easilt be swapped out. for a start we have designed two-
 
 * First Aid and small package deliverer. We designed a payload dropper mechanism to drop first aid boxes in times of flooded rains
