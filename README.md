@@ -110,6 +110,16 @@ ___
 ___
 
 
+## PCB 1 - FLIGHT CONTROLLER
+![FC](docs/FC-PCB.png)
+
+___
+
+## PCB 2 - PAYLOAD PCB
+![PAYLOAD PACB](docs/PAYLOAD-PCB.jpeg)
+
+___
+
 ## Bill of Materials
 | Item | Specific Part | Unit Price (INR) | Quantity | Total Price (INR) | URL | Running Total |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
