@@ -12,6 +12,8 @@ gps ,HGLRC M100 Pro,1900,1,1900,https://robu.in/product/hglrc-m100-pro-gps/,2716
 Frame,3D printed using PETG-CF (cost negligible),0,1,0,Nil,27160
 radio ,FS i6,0,1,0,already have,27160
 Antenna,6dBi 2.4GHz 5GHz Dual Band WiFi SMA Antenna,62,1,62,https://robocraze.com/products/6dbi-2-4ghz-5ghz-dual-band-wifi-rp-sma-antenna-20cm-u-fl-ipex-cable?variant=40193204355225&country=IN&currency=INR&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOopH3DszcxEvZ3fJTGOb9wme8XNQd_OVC0BxA_BZGJgD0Yy-TWYuZ2o&gclid=CjwKCAjw-8vPBhBbEiwAoA39WpMt2_jpg0lX2qCOuoLGjLW7GJVIH-RRfTW6HiL1l53JX1jjskav0RoC2vsQAvD_BwE,27222
-Wfii module,ESP 32,1400,1,1400,https://robocraze.com/products/wifi-kit-32?variant=43210522722528&country=IN&currency=INR&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOoo1Eca3zpbas07HPVCGWMJ4PZ_-aqB0Vr8CgmiEsVU943tfYQlDjqY&gclid=CjwKCAjw-8vPBhBbEiwAoA39WghemLIuRv6jUWg3nvgTu0V2ouwotgtkjm_BC57kZnpFYoq0nHd0XhoCQ4QQAvD_BwE,28560
-Servo,SG90,0,1,0,already have,28560
-Total,,,,,,28560
+Wfii module,ESP 32,1400,1,1400,https://robocraze.com/products/wifi-kit-32?variant=43210522722528&country=IN&currency=INR&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOoo1Eca3zpbas07HPVCGWMJ4PZ_-aqB0Vr8CgmiEsVU943tfYQlDjqY&gclid=CjwKCAjw-8vPBhBbEiwAoA39WghemLIuRv6jUWg3nvgTu0V2ouwotgtkjm_BC57kZnpFYoq0nHd0XhoCQ4QQAvD_BwE,28622
+Servo,SG90,0,1,0,already have,28622
+Payload PCB,Custom PCB,720,1,720,Nil,29342
+NFC Tag,PN532 NFC RFID ,261,1,261,https://www.flyrobo.in/pn532-nfc-rfid-module-v3-kit?tracking=ads,29603
+Total,,,,,,29603
