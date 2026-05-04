@@ -65,7 +65,7 @@ where we live-> bangalore gets heavy rains all the time (even in the summer) and
 We couldnt export the 3D model with the electronics
 
 ## WIRING DIAGRAM
-![Wiring](docs/Wiring_Diagram.png)
+![Wiring](docs/Wiring-Diagram.png)
 
 ## Bill of Materials (BOM)
 
