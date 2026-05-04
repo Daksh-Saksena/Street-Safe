@@ -1,6 +1,19 @@
 # StreetSafe:
 Disaster-response system designed to help people navigate safely during heavy rain and flooding. It improves on traditional GPS by using real-time data to guide users away from unsafe roads. Also the MAIN thing- An autonomous drone that can monitor conditions on the ground, update routes, and assist in search and rescue when situations become bad
 
+So there are 2 parts of our Project, the physical design and drone , and the front end code base:-
+
+# DRONE:
+We designed the entire custom model including electronics in fusion and made a wiring diagram including all the components and the wiring.
+## What differentiates us?
+Due to our goal of a helpful autonomous weatherproof drone, we had to add multiple unique differntiating parts-
+1.weatherproofing and waterproofing while maintaining airflow to cool components
+2.Constant Lidar sensing on top of the drone to autonomously navigate
+3.Payload mechanisms which can easilt be swapped out. for a start we have designed two-
+* First Aid and small package deliverer. We designed a payload dropper mechanism to drop first aid boxes in times of flooded rains
+* WIFI booster- In tree surrounded areas wifi connectivity gets worse exponentially so our drone acts as a network booster such that people can connect to internet and can call in case of emergencies.
+
+# CODE:
 This codebase is split into two main parts:
 1. A Raspberry Pi 5 control system that is designed to run on actual hardware -> WARNING! ! ! -> WE DONT HAVE THE PHSYICAL COMPONENTS YET SO THIS IS LIKE A PLACEHOLDER!
 2. A simulation (for testing and demoing) and dashboard system that runs in the browser and backend
@@ -62,7 +75,6 @@ where we live-> bangalore gets heavy rains all the time (even in the summer) and
 
 ## 3D MODEL
 ![3D model](docs/3D-model.jpeg)
-We couldnt export the 3D model with the electronics
 
 ## WIRING DIAGRAM
 ![Wiring](docs/Wiring-Diagram.png)
