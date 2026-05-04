@@ -67,6 +67,23 @@ We couldnt export the 3D model with the electronics
 ## WIRING DIAGRAM
 ![Wiring](docs/Wiring-Diagram.png)
 
-## Bill of Materials (BOM)
-
-Full BOM: [BOM.csv](BOM.csv) — Total: ₹29,459
+## Bill of Materials
+| Item | Specific Part | Unit Price (INR) | Quantity | Total Price (INR) | URL | Running Total |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Companion computer | Raspberry Pi 5 (4GB) | 0 | 1 | 0 | Nil | 0 |
+| Primary LiDAR | LDROBOT D500 | 7,520 | 1 | 7,520 | [Link](https://robu.in/product/ldrobot-dtof-lidar-stl-19p-360-omni-directional-lidar/) | 7,520 |
+| FC | Custom PCB | 1,700 | 1 | 1,700 | Nil | 9,220 |
+| ESC | BotDrive 8-bit 4-in-1 ESC 50 Amps | 3,599 | 1 | 3,599 | [Link](https://robu.in/product/botdrive-8-bit-4-in-1-esc-50-a/) | 12,819 |
+| Motors | Emax ECOII 2807 1300KV | 1,700 | 4 | 6,800 | [Link](https://hitechxyz.in/products/emax-ecoii-2807-1300kv-brushless-motor) | 19,619 |
+| Propeller | Gemfan 7040 | 200 | 4 | 800 | [Link](https://hitechxyz.in/products/pro-range-propellers-7040-flash-pc-3-blade-propellers-2cw-2ccw-black) | 20,419 |
+| Battery | 6S 4500mAh Li-ion | 4,100 | 1 | 4,100 | [Link](https://robu.in/product/pro-range-inr-21700-p45b-22-2v-4500mah-6s1p-35a-45a-discharge-li-ion-drone-battery-pack/) | 24,519 |
+| BEC | 13S 5V BEC For Quad | 741 | 1 | 741 | [Link](https://www.flyrobo.in/yrrc-2-13s-5v-5a-bec-module?tracking=ads) | 25,260 |
+| GPS | HGLRC M100 Pro | 1,900 | 1 | 1,900 | [Link](https://robu.in/product/hglrc-m100-pro-gps/) | 27,160 |
+| Frame | 3D printed using PETG-CF (cost negligible) | 0 | 1 | 0 | Nil | 27,160 |
+| Radio | FS i6 | 0 | 1 | 0 | Already have | 27,160 |
+| Antenna | 6dBi 2.4GHz 5GHz Dual Band WiFi SMA Antenna | 62 | 1 | 62 | [Link](https://robocraze.com/products/6dbi-2-4ghz-5ghz-dual-band-wifi-rp-sma-antenna-20cm-u-fl-ipex-cable) | 27,222 |
+| WiFi module | ESP32 | 1,400 | 1 | 1,400 | [Link](https://robocraze.com/products/wifi-kit-32) | 28,622 |
+| Servo | SG90 | 0 | 1 | 0 | Already have | 28,622 |
+| Payload PCB | Custom PCB | 720 | 1 | 720 | Nil | 29,342 |
+| NFC Tag | PN532 NFC RFID | 261 | 1 | 261 | [Link](https://www.flyrobo.in/pn532-nfc-rfid-module-v3-kit?tracking=ads) | 29,603 |
+| **Total** |  |  |  |  |  | **29,603** |
