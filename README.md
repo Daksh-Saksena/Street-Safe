@@ -99,6 +99,17 @@ ___
 
 ___
 
+## PAYLOAD 1 - WiFi
+![Wifi](docs/Wifi-Module.png)
+
+___
+
+## PAYLOAD 2 - Dropping
+![Dropping payload](docs/Dropping-Payload.png)
+
+___
+
+
 ## Bill of Materials
 | Item | Specific Part | Unit Price (INR) | Quantity | Total Price (INR) | URL | Running Total |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
