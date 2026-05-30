@@ -90,7 +90,7 @@ ___
 ___
 
 ## WIRING DIAGRAM
-![Wiring](docs/Wiring-Diagram.png)
+![Wiring](docs/Wiring.png)
 
 ___
 
