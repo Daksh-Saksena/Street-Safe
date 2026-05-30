@@ -113,6 +113,7 @@ ___
 <p align="center">
   <img src="docs/FC-PCB.png" alt="FC" width="250">
   <img src="docs/Payload-PCB.jpeg" alt="PAYLOAD PCB" width="250">
+  <img src="docs/GPS.jpeg" alt="GPS PCB" width="250">
 </p>
 
 ___
