@@ -109,7 +109,7 @@ ___
 
 ___
 
-## PCB 1 and 2: FC and PAYLOAD
+## PCB 1,2 and 3: FC, GPS and PAYLOAD
 <p align="center">
   <img src="docs/FC-PCB.png" alt="FC" width="250">
   <img src="docs/Payload-PCB.jpeg" alt="PAYLOAD PCB" width="250">
