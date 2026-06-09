@@ -82,6 +82,9 @@ ___
 ## Why did we do this? 
 where we live-> bangalore gets heavy rains all the time (even in the summer) and its really bad traffic on top of the already infamous bangalore traffic but this can also get quite deadly, so we started this originally as a hackathon project (just some code which is now sitting in Old-website) but then we realised that this could actually be a fun and usefull project and here we are!
 
+
+Note: Shipping prices are high even on the cheapest project, due to customs while shipping to where we live (India). We have selected the cheapest options.
+
 ___
 
 ## 3D MODEL
