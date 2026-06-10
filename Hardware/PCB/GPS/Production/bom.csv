@@ -1,0 +1,11 @@
+"Id";"Designator";"Footprint";"Quantity";"Designation";"Supplier and ref";
+1;"C1";"C_0603_1608Metric";1;"10uF";;;
+2;"C2";"C_0603_1608Metric";1;"22uF";;;
+3;"C3";"C_0603_1608Metric";1;"4.7uF";;;
+4;"C4";"C_0603_1608Metric";1;"100nF";;;
+5;"C5, C6";"C_0603_1608Metric";2;"0.1uF";;;
+6;"J1";"PinHeader_1x06_P2.54mm_Vertical";1;"Conn_01x06_Socket";;;
+7;"R1, R2";"R_0603_1608Metric";2;"4.7kΩ";;;
+8;"U1";"SAM-M10Q_UBL";1;"SAM-M10Q-00B";;;
+9;"U2";"SOT-223-3_TabPin2";1;"AMS1117-3.3";;;
+10;"U3";"LGA-16_3x3mm_P0.5mm";1;"IST8310";;;

@@ -3702,6 +3702,16 @@
 	)
 	(wire
 		(pts
+			(xy 168.91 55.88) (xy 167.64 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "02d30afa-da64-4519-bb2b-bf0fed7ab11e")
+	)
+	(wire
+		(pts
 			(xy 185.42 86.36) (xy 186.69 86.36)
 		)
 		(stroke
@@ -3712,6 +3722,26 @@
 	)
 	(wire
 		(pts
+			(xy 158.75 100.33) (xy 163.83 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e218173-d5f5-49b3-9b31-a2683a43484f")
+	)
+	(wire
+		(pts
+			(xy 162.56 55.88) (xy 160.02 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "539d5af1-dfae-4026-bc9c-a17080ef33fd")
+	)
+	(wire
+		(pts
 			(xy 186.69 86.36) (xy 194.31 86.36)
 		)
 		(stroke
@@ -3719,6 +3749,16 @@
 			(type default)
 		)
 		(uuid "64bf3502-7a66-4bae-a3e8-3ec88838e989")
+	)
+	(wire
+		(pts
+			(xy 116.84 85.09) (xy 116.84 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9ec12ff2-4c75-4908-ad37-56f7161e4891")
 	)
 	(wire
 		(pts
@@ -3741,12 +3781,12 @@
 		(uuid "082e842b-39f9-45ad-be88-36891893ac51")
 	)
 	(label "gnd"
-		(at 160.02 55.88 180)
+		(at 162.56 55.88 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "0d0b76ca-5293-49d2-ac36-64c11453af6b")
 	)
@@ -4101,7 +4141,7 @@
 		(uuid "abc41bde-6d03-4009-9b4b-e5ed481f0dbb")
 	)
 	(label "gnd"
-		(at 167.64 55.88 0)
+		(at 168.91 55.88 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4231,7 +4271,7 @@
 		(uuid "ed9c0f5b-e6b1-4e00-ab55-d7d075bc4f7a")
 	)
 	(label "en"
-		(at 116.84 83.82 180)
+		(at 116.84 85.09 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4281,7 +4321,7 @@
 		(uuid "fd03a0ae-5665-41ea-8690-4d67982f7f8b")
 	)
 	(label "payload_gnd"
-		(at 163.83 101.6 0)
+		(at 158.75 100.33 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5088,10 +5128,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "63368434-7f83-40b4-929c-804f5df6196a")
 		(property "Reference" "R2"
-			(at 170.18 50.7999 0)
+			(at 172.212 43.942 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5102,7 +5141,7 @@
 			)
 		)
 		(property "Value" "5.1k ohm"
-			(at 170.18 53.3399 0)
+			(at 165.608 45.72 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5250,7 +5289,6 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "725ffc53-791c-46f2-9b4d-2bb7fe584169")
 		(property "Reference" "R1"
 			(at 162.56 50.7999 0)
@@ -5264,7 +5302,7 @@
 			)
 		)
 		(property "Value" "5.1k ohm"
-			(at 162.56 53.3399 0)
+			(at 155.194 48.768 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
