@@ -21,4 +21,6 @@ We added all the production files in the production folder. I tried to add as ma
 --- 
 
 # Assembly Instructions
-Use a stencil to solder. See youtube to understand how to use a hotplate properly. The reason we're recommending a stencil for this is theres a lot of capacitors and resistors which are quite close together. We personally are first timers, and hence we will play it safe with a stencil.
+1.  **Solder Paste Application:** It is highly recommended to use a laser-cut stainless steel **solder stencil** rather than manual hand-pasting to prevent solder bridging across close-proximity components.
+2.  **Component Placement:** Carefully place the surface-mount devices (SMDs), taking extra care with the orientation of the SAM-M10Q patch antenna and the IST8310 alignment dot.
+3.  **Reflow Method:** Utilize a temperature-controlled SMD hotplate or reflow oven for assembly. If you are new to hotplate soldering, review proper thermal profiling guidelines to avoid overheating the sensitive internal RF shielding of the GPS receiver.
