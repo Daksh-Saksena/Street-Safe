@@ -502,7 +502,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "Streetsafe.kicad_pro",
+    "filename": "HermesFC.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -539,7 +539,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "gerber/",
+      "plot": "Production/",
       "pos_files": "assembly/",
       "specctra_dsn": "",
       "step": "",
@@ -668,8 +668,8 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "Streetsafe.kicad_sch",
-        "name": "Streetsafe",
+        "filename": "HermesFC.kicad_sch",
+        "name": "HermesFC",
         "uuid": "7c1ac307-4d35-4291-88c2-548b52d0f9f3"
       }
     ],
@@ -679,7 +679,7 @@
   "sheets": [
     [
       "7c1ac307-4d35-4291-88c2-548b52d0f9f3",
-      "Streetsafe"
+      "HermesFC"
     ],
     [
       "a297423f-aa5e-4aa5-a207-bad3f64142ef",

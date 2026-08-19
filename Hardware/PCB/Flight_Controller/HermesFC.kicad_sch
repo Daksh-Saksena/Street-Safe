@@ -5,8 +5,11 @@
 	(uuid "7c1ac307-4d35-4291-88c2-548b52d0f9f3")
 	(paper "A4")
 	(title_block
-		(date "23/4/2026")
+		(title "Hermes Flight Controller")
+		(date "2025-03-12")
 		(rev "v1.0")
+		(company "Aadil Naji")
+		(comment 1 "HERMESFLIGHT CONTROLLER V1.0")
 	)
 	(lib_symbols)
 	(sheet
@@ -48,7 +51,7 @@
 			)
 		)
 		(instances
-			(project "Streetsafe"
+			(project "HermesFC"
 				(path "/7c1ac307-4d35-4291-88c2-548b52d0f9f3"
 					(page "2")
 				)
@@ -94,7 +97,7 @@
 			)
 		)
 		(instances
-			(project "Streetsafe"
+			(project "HermesFC"
 				(path "/7c1ac307-4d35-4291-88c2-548b52d0f9f3"
 					(page "3")
 				)
