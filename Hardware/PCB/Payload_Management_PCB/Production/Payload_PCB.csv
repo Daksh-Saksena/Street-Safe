@@ -1,0 +1,16 @@
+"Id";"Designator";"Footprint";"Quantity";"Designation";"Supplier and ref";
+1;"C1";"C_0603_1608Metric";1;"0.1 uF";;;
+2;"C2";"C_0603_1608Metric";1;"10uF";;;
+3;"C3";"C_0603_1608Metric";1;"22 uF";;;
+4;"D1";"D_SMA";1;"SS14";;;
+5;"J1";"PinHeader_1x04_P2.54mm_Vertical";1;"PI IN";;;
+6;"J2";"USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal";1;"USB_C_Receptacle_USB2.0_16P";;;
+7;"J3";"PinHeader_1x04_P2.54mm_Vertical";1;"payload out";;;
+8;"J4";"PinHeader_1x04_P2.54mm_Vertical";1;"nfc";;;
+9;"L1";"L_1008_2520Metric";1;"2.2 uH";;;
+10;"Q1";"SOT-23";1;"AO3400A";;;
+11;"R1, R2";"R_0603_1608Metric";2;"5.1k ohm";;;
+12;"R3";"R_0603_1608Metric";1;"10kOHM";;;
+13;"TP1";"TestPoint_Pad_D1.0mm";1;"TestPoint";;;
+14;"U1";"ESP32-S2-MINI-1U";1;"ESP32-S3-MINI-1U";;;
+15;"U2";"TSOT-23-6";1;"AP63203WU";;;
